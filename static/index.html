@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RAG 演示台</title>
+<link rel="stylesheet" href="/static/vendor/github-dark.min.css">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -45,8 +46,9 @@
   #answer-area p, .source-body p { white-space: normal; margin: 0 0 8px; }
   #answer-area code, .source-body code { background: #f0f2f5; padding: 1px 4px; border-radius: 3px;
     font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
-  #answer-area pre, .source-body pre { background: #1f2430; color: #e6e9f0; padding: 12px; border-radius: 6px;
-    overflow-x: auto; margin: 8px 0; font-size: 12px; line-height: 1.6; }
+  #answer-area pre, .source-body pre { background: #0d1117; color: #e6e9f0; padding: 12px 14px;
+    border: 1px solid #30363d; border-radius: 6px; overflow-x: auto; margin: 10px 0;
+    font-size: 13px; line-height: 1.7; }
   #answer-area pre code, .source-body pre code { background: none; color: inherit; padding: 0; }
   #answer-area h1, #answer-area h2, #answer-area h3, #answer-area h4,
   .source-body h1, .source-body h2, .source-body h3, .source-body h4 {
@@ -148,12 +150,28 @@
   </aside>
 </main>
 <footer>回答由本地 Qwen3.5 生成 · 依据来自知识库余弦检索</footer>
+<script src="/static/vendor/highlight.min.js"></script>
+<script src="/static/vendor/powershell.min.js"></script>
 <script src="/static/vendor/markdown-it.min.js"></script>
 <script>
 (function () {
   'use strict';
   // markdown-it：本地库离线渲染；html:false 不渲染原始 HTML，防 XSS
-  var md = window.markdownit({ html: false, linkify: false });
+  // highlight.js：代码块语法高亮（本地化；语言缺失/高亮失败自动降级为转义文本）
+  var md = window.markdownit({
+    html: false,
+    linkify: false,
+    highlight: function (str, lang) {
+      if (lang && window.hljs && window.hljs.getLanguage(lang)) {
+        try {
+          return '<pre><code class="hljs language-' + lang + '">' +
+            window.hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+            '</code></pre>';
+        } catch (e) { /* 降级走默认转义 */ }
+      }
+      return '';
+    }
+  });
   function renderMarkdown(text) { return md.render(String(text)); }
 
   var askForm = document.getElementById('ask-form');
