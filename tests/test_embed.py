@@ -2,7 +2,7 @@
 
 import pytest
 
-from rag.embed import DEFAULT_URL, embed
+from rag.embed import DEFAULT_URL, EmbeddingError, embed
 
 
 class FakeResponse:
@@ -52,5 +52,6 @@ def test_embed_raises_on_service_error(monkeypatch):
         return FakeResponse({}, status=500)
 
     monkeypatch.setattr('rag.embed.requests.post', fake_post)
-    with pytest.raises(requests.HTTPError):
+    with pytest.raises(EmbeddingError, match="向量化请求出问题了") as exc_info:
         embed('触发错误')
+    assert isinstance(exc_info.value.__cause__, requests.exceptions.HTTPError)

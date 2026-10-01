@@ -39,7 +39,7 @@ def test_heading_kept_as_anchor():
 
 def test_no_heading_falls_back_to_window():
     """无标题文档退化为固定窗口切。"""
-    body = '这是一段没有标题的纯正文。' * 200  # 约 2800 字
+    body = '这是一段没有标题的纯正文。' * 200  # 约 2600 字
     chunks = list(chunk_markdown(body))
     assert len(chunks) > 1
     assert all(len(c) <= WINDOW for c in chunks)
@@ -47,7 +47,7 @@ def test_no_heading_falls_back_to_window():
 
 def test_overlong_section_split_inside():
     """超长节内再固定窗口切（两级策略）。"""
-    text = '# 超长节\n' + '正文内容。' * 400  # 约 1800 字
+    text = '# 超长节\n' + '正文内容。' * 400  # 约 2000 字
     chunks = list(chunk_markdown(text))
     assert len(chunks) > 1
     assert all(len(c) <= WINDOW for c in chunks)

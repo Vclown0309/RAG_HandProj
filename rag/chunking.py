@@ -34,7 +34,7 @@ def _split_window(text: str) -> Iterator[str]:
 def chunk_markdown(text: str) -> Iterator[str]:
     """两级切块：按标题分节；超长节内窗口切；无标题退化为窗口切。"""
     lines = text.splitlines()
-    # any 函数实现判断是否文件内容为空
+    # any 函数实现 判断文件内容中是否存在标题，不存在的话自动走无标题固定窗口切分逻辑
     if not any(_is_heading(line) for line in lines):
         yield from _split_window(text)
         return
