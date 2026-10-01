@@ -32,10 +32,11 @@ def test_root() -> None:
 
 
 def test_static_page_has_source_panel() -> None:
-    """演示页含参考源侧边栏与提问表单。"""
+    """演示页含知识库管理 + 参考源侧边栏 + 提问表单。"""
     resp = client.get('/')
     assert resp.status_code == 200
-    assert 'sources-panel' in resp.text
+    assert 'sources-section' in resp.text
+    assert 'library-section' in resp.text
     assert 'ask-form' in resp.text
 
 

@@ -32,6 +32,10 @@
     background: #1f6feb; color: #fff; cursor: pointer;
   }
   button:hover { background: #1857c4; }
+  button.secondary { background: #f0f2f5; color: #1f2430; border: 1px solid #d0d3da; }
+  button.secondary:hover { background: #e6ebf5; }
+  button.danger { background: #dc2626; }
+  button.danger:hover { background: #b91c1c; }
   #answer-area {
     margin-top: 14px; background: #fff; border: 1px solid #e0e3e8;
     border-radius: 8px; padding: 16px 18px; min-height: 200px;
@@ -39,13 +43,32 @@
   }
   #answer-area .loading { color: #6b7280; }
   #answer-area p { white-space: normal; }
+  #answer-area code { background: #f0f2f5; padding: 1px 4px; border-radius: 3px; }
   aside {
-    width: 360px; background: #fff; border: 1px solid #e0e3e8; border-radius: 8px;
-    padding: 14px 16px; max-height: 72vh; overflow-y: auto;
+    width: 380px; background: #fff; border: 1px solid #e0e3e8; border-radius: 8px;
+    padding: 14px 16px; max-height: 78vh; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 14px;
   }
-  aside h2 { font-size: 14px; color: #444; margin-bottom: 10px; }
+  aside section h2 { font-size: 14px; color: #444; margin-bottom: 8px; }
   aside ul { list-style: none; }
   aside li { margin-bottom: 8px; }
+  .upload-row { display: flex; gap: 6px; }
+  .upload-row input[type="file"] {
+    flex: 1; font-size: 12px; border: 1px dashed #d0d3da; border-radius: 6px;
+    padding: 8px; color: #555;
+  }
+  .doc-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 6px;
+    background: #f0f2f5; border: 1px solid #e0e3e8; border-radius: 6px; padding: 6px 8px;
+    font-size: 13px;
+  }
+  .doc-item .doc-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .doc-item .doc-chunks { color: #6b7280; flex-shrink: 0; }
+  .doc-item .del-btn {
+    background: none; border: none; color: #dc2626; font-size: 12px; cursor: pointer;
+    padding: 2px 4px; flex-shrink: 0;
+  }
+  .doc-item .del-btn:hover { text-decoration: underline; }
   .source-btn {
     width: 100%; display: flex; justify-content: space-between; align-items: center;
     background: #f0f2f5; border: 1px solid #e0e3e8; border-radius: 6px;
@@ -63,6 +86,7 @@
     color: #333; font-family: ui-monospace, Consolas, monospace;
   }
   .empty { color: #9aa4b5; font-size: 13px; }
+  .hint { font-size: 12px; color: #9aa4b5; margin-top: 4px; }
   footer {
     padding: 12px 24px; font-size: 12px; color: #9aa4b5; text-align: center;
   }
@@ -85,11 +109,22 @@
     </form>
     <div id="answer-area">输入问题开始体验：回答下方「参考源」可点击展开，查看模型依据的原文块。</div>
   </section>
-  <aside id="sources-panel">
-    <h2>参考源 · 点击展开原文块</h2>
-    <ul id="sources-list">
-      <li class="empty">提问后，这里会列出模型依据的知识块</li>
-    </ul>
+  <aside id="side-panel">
+    <section id="library-section">
+      <h2>知识库</h2>
+      <div class="upload-row">
+        <input id="file-input" type="file" accept=".txt,.md">
+        <button id="upload-btn" class="secondary" type="button">上传入库</button>
+      </div>
+      <div class="hint">上传 txt / md，自动切块 + 向量化，可直接提问</div>
+      <ul id="library-list"></ul>
+    </section>
+    <section id="sources-section">
+      <h2>参考源 · 点击展开原文块</h2>
+      <ul id="sources-list">
+        <li class="empty">提问后，这里会列出模型依据的知识块</li>
+      </ul>
+    </section>
   </aside>
 </main>
 <footer>回答由本地 Qwen3.5 生成 · 依据来自知识库余弦检索</footer>
@@ -97,10 +132,13 @@
 (function () {
   'use strict';
 
-  var form = document.getElementById('ask-form');
+  var askForm = document.getElementById('ask-form');
   var input = document.getElementById('query-input');
   var answerArea = document.getElementById('answer-area');
   var sourcesList = document.getElementById('sources-list');
+  var libraryList = document.getElementById('library-list');
+  var fileInput = document.getElementById('file-input');
+  var uploadBtn = document.getElementById('upload-btn');
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
@@ -108,7 +146,6 @@
     });
   }
 
-  // 极简 markdown：**粗体**、`代码`、换行分块；其余原样（已转义，安全）
   function renderMarkdown(text) {
     var html = escapeHtml(text);
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
@@ -145,7 +182,68 @@
     });
   }
 
-  form.addEventListener('submit', function (e) {
+  function loadLibrary() {
+    fetch('/library')
+      .then(function (resp) { return resp.json(); })
+      .then(function (data) {
+        libraryList.innerHTML = '';
+        if (!data.sources || !data.sources.length) {
+          libraryList.innerHTML = '<li class="empty">知识库为空，上传文档开始</li>';
+          return;
+        }
+        data.sources.forEach(function (doc) {
+          var li = document.createElement('li');
+          var div = document.createElement('div');
+          div.className = 'doc-item';
+          var del = document.createElement('button');
+          del.className = 'del-btn';
+          del.textContent = '删除';
+          del.addEventListener('click', function () {
+            if (!window.confirm('删除文档「' + doc.source + '」？')) return;
+            fetch('/library/' + encodeURIComponent(doc.source), { method: 'DELETE' })
+              .then(function (resp) {
+                if (!resp.ok) return resp.json().then(function (e) { throw new Error(e.detail || '删除失败'); });
+                loadLibrary();
+              })
+              .catch(function (err) { window.alert('删除失败：' + err.message); });
+          });
+          div.innerHTML = '<span class="doc-name">' + escapeHtml(doc.source) + '</span>' +
+            '<span class="doc-chunks">' + doc.chunks + ' 块</span>';
+          div.appendChild(del);
+          li.appendChild(div);
+          libraryList.appendChild(li);
+        });
+      })
+      .catch(function (err) {
+        libraryList.innerHTML = '<li class="empty">知识库加载失败：' + escapeHtml(err.message) + '</li>';
+      });
+  }
+
+  uploadBtn.addEventListener('click', function () {
+    var file = fileInput.files[0];
+    if (!file) { window.alert('先选择文件'); return; }
+    var fd = new FormData();
+    fd.append('file', file);
+    uploadBtn.textContent = '上传中……';
+    fetch('/library', { method: 'POST', body: fd })
+      .then(function (resp) {
+        return resp.json().then(function (data) { return { status: resp.status, data: data }; });
+      })
+      .then(function (result) {
+        if (result.status !== 200) {
+          throw new Error(result.data.detail || '上传失败');
+        }
+        window.alert('已入库：' + result.data.source + '（新增 ' + result.data.added + ' 块）');
+        fileInput.value = '';
+        loadLibrary();
+      })
+      .catch(function (err) {
+        window.alert('上传失败：' + err.message);
+      })
+      .finally(function () { uploadBtn.textContent = '上传入库'; });
+  });
+
+  askForm.addEventListener('submit', function (e) {
     e.preventDefault();
     var query = input.value.trim();
     if (!query) return;
@@ -174,6 +272,8 @@
         answerArea.innerHTML = '<p>请求失败：' + escapeHtml(err.message) + '</p>';
       });
   });
+
+  loadLibrary();
 })();
 </script>
 </body>
