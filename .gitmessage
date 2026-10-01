@@ -1,0 +1,8 @@
+<type>(<scope>): <subject 祈使句，中文或英文，尽量≤50字符>
+
+<body：为什么这么做（可选，不写怎么做）>
+
+# type 最小集：feat 新功能 / fix 修bug / docs 文档 / refactor 重构(行为不变)
+#            / test 补测试 / chore 杂务 / perf 性能 / style 格式
+# scope 可选：rag / tests / main 等模块名
+# 破坏性变更：BREAKING CHANGE: <说明>（换模型重建库等）
