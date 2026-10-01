@@ -42,7 +42,24 @@
     line-height: 1.7; font-size: 14px; white-space: pre-wrap; word-break: break-word;
   }
   #answer-area .loading { color: #6b7280; }
-  #answer-area p { white-space: normal; }
+  #answer-area p { white-space: normal; margin: 0 0 8px; }
+  #answer-area code { background: #f0f2f5; padding: 1px 4px; border-radius: 3px;
+    font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+  #answer-area pre { background: #1f2430; color: #e6e9f0; padding: 12px; border-radius: 6px;
+    overflow-x: auto; margin: 8px 0; font-size: 12px; line-height: 1.6; }
+  #answer-area pre code { background: none; color: inherit; padding: 0; }
+  #answer-area h1, #answer-area h2, #answer-area h3, #answer-area h4 {
+    margin: 14px 0 6px; color: #1f2430; line-height: 1.4; }
+  #answer-area h1 { font-size: 17px; } #answer-area h2 { font-size: 16px; }
+  #answer-area h3 { font-size: 15px; } #answer-area h4 { font-size: 14px; }
+  #answer-area ul, #answer-area ol { margin: 6px 0 10px 22px; white-space: normal; }
+  #answer-area li { margin: 3px 0; }
+  #answer-area table { border-collapse: collapse; margin: 8px 0; width: 100%; }
+  #answer-area th, #answer-area td { border: 1px solid #d0d3da; padding: 5px 9px;
+    font-size: 13px; text-align: left; }
+  #answer-area th { background: #f0f2f5; }
+  #answer-area blockquote { border-left: 3px solid #d0d3da; padding-left: 10px;
+    color: #555; margin: 8px 0; white-space: normal; }
   #answer-area code { background: #f0f2f5; padding: 1px 4px; border-radius: 3px; }
   aside {
     width: 380px; background: #fff; border: 1px solid #e0e3e8; border-radius: 8px;
@@ -128,6 +145,7 @@
   </aside>
 </main>
 <footer>回答由本地 Qwen3.5 生成 · 依据来自知识库余弦检索</footer>
+<script src="/static/md.js"></script>
 <script>
 (function () {
   'use strict';
@@ -144,14 +162,6 @@
     return String(s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
-  }
-
-  function renderMarkdown(text) {
-    var html = escapeHtml(text);
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-    html = html.replace(/\n/g, '<br>');
-    return '<p>' + html + '</p>';
   }
 
   function renderSources(sources) {
