@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """normalize_md 单元测试：扩展方言降级到 CommonMark/GFM 子集。"""
 
 from rag.normalize import normalize_md

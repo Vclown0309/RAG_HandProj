@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Markdown 方言清理：把扩展方言降级到 CommonMark/GFM 子集。
 
 设计（站在巨人肩膀上）：

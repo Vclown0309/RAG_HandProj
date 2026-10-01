@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """chunk_markdown 单元测试：两级切块策略。"""
 
 from rag.chunking import WINDOW, chunk_markdown
@@ -34,7 +33,7 @@ def test_mixed_headings():
 def test_heading_kept_as_anchor():
     """标题行必须保留在块内（检索命中信号）。"""
     text = '# 检索最佳实践\n正文内容'
-    chunk = list(chunk_markdown(text))[0]
+    chunk = next(iter(chunk_markdown(text)))
     assert chunk.startswith('# 检索最佳实践')
 
 
