@@ -145,10 +145,13 @@
   </aside>
 </main>
 <footer>回答由本地 Qwen3.5 生成 · 依据来自知识库余弦检索</footer>
-<script src="/static/md.js"></script>
+<script src="/static/vendor/markdown-it.min.js"></script>
 <script>
 (function () {
   'use strict';
+  // markdown-it：本地库离线渲染；html:false 不渲染原始 HTML，防 XSS
+  var md = window.markdownit({ html: false, linkify: false });
+  function renderMarkdown(text) { return md.render(String(text)); }
 
   var askForm = document.getElementById('ask-form');
   var input = document.getElementById('query-input');
