@@ -1,0 +1,60 @@
+<html style="margin:0;padding:0;">
+<title>开发工具融会贯通地图</title>
+<div style="font-family:'Microsoft YaHei',sans-serif;background:#f7f9fc;color:#1f2430;padding:20px;width:100%;box-sizing:border-box;">
+  <div style="text-align:center;margin-bottom:6px;">
+    <div style="font-size:22px;font-weight:700;color:#14385c;">开发工具融会贯通地图</div>
+    <div style="font-size:14px;color:#5b6472;margin-top:4px;">一个工具 = 一个函数：弄清 输入→输出、坏了查哪、融会标志 三点，工具就长在身上</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:14px 0 20px;">
+    <div style="background:#14385c;color:#fff;padding:8px 14px;border-radius:20px;font-size:14px;font-weight:600;">uv 建环境</div>
+    <div style="color:#14385c;font-size:18px;font-weight:700;">→</div>
+    <div style="background:#e8eef7;color:#14385c;padding:8px 14px;border-radius:20px;font-size:14px;font-weight:600;">写代码</div>
+    <div style="color:#14385c;font-size:18px;font-weight:700;">→</div>
+    <div style="background:#e8eef7;color:#14385c;padding:8px 14px;border-radius:20px;font-size:14px;font-weight:600;">ruff 体检</div>
+    <div style="color:#14385c;font-size:18px;font-weight:700;">→</div>
+    <div style="background:#e8eef7;color:#14385c;padding:8px 14px;border-radius:20px;font-size:14px;font-weight:600;">mypy 类型体检</div>
+    <div style="color:#14385c;font-size:18px;font-weight:700;">→</div>
+    <div style="background:#e8eef7;color:#14385c;padding:8px 14px;border-radius:20px;font-size:14px;font-weight:600;">pytest 验收</div>
+    <div style="color:#14385c;font-size:18px;font-weight:700;">→</div>
+    <div style="background:#e8eef7;color:#14385c;padding:8px 14px;border-radius:20px;font-size:14px;font-weight:600;">git 存档</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
+    <div style="flex:1 1 220px;min-width:220px;max-width:320px;background:#fff;border:1px solid #d7dfe9;border-radius:10px;padding:14px;box-sizing:border-box;">
+      <div style="font-size:16px;font-weight:700;color:#14385c;">uv · 环境快递</div>
+      <div style="font-size:14px;color:#5b6472;margin:4px 0 8px;">菜谱 pyproject.toml → 厨房 .venv</div>
+      <div style="font-size:14px;line-height:1.6;"><span style="font-weight:700;color:#b3401d;">坏了查</span>：装包失败看源（清华已默认），uv.lock 与 pyproject 对不上就 sync</div>
+      <div style="font-size:14px;line-height:1.6;margin-top:6px;"><span style="font-weight:700;color:#1d6b3c;">融会</span>：新机器 <code>uv sync</code> 一键跑起</div>
+    </div>
+    <div style="flex:1 1 220px;min-width:220px;max-width:320px;background:#fff;border:1px solid #d7dfe9;border-radius:10px;padding:14px;box-sizing:border-box;">
+      <div style="font-size:16px;font-weight:700;color:#14385c;">ruff · 代码体检</div>
+      <div style="font-size:14px;color:#5b6472;margin:4px 0 8px;">代码 → 违规清单 / 自动排版</div>
+      <div style="font-size:14px;line-height:1.6;"><span style="font-weight:700;color:#b3401d;">坏了查</span>：报错首字母（E/F 等）是规则编号，搜它定位；豁免用 <code># noqa</code> 或改配置</div>
+      <div style="font-size:14px;line-height:1.6;margin-top:6px;"><span style="font-weight:700;color:#1d6b3c;">融会</span>：看别人代码 3 秒指出风格问题</div>
+    </div>
+    <div style="flex:1 1 220px;min-width:220px;max-width:320px;background:#fff;border:1px solid #d7dfe9;border-radius:10px;padding:14px;box-sizing:border-box;">
+      <div style="font-size:16px;font-weight:700;color:#14385c;">mypy · 类型体检</div>
+      <div style="font-size:14px;color:#5b6472;margin:4px 0 8px;">注解代码 → 类型错误清单</div>
+      <div style="font-size:14px;line-height:1.6;"><span style="font-weight:700;color:#b3401d;">坏了查</span>：报错带行号，追那个变量在哪分支可能变 None</div>
+      <div style="font-size:14px;line-height:1.6;margin-top:6px;"><span style="font-weight:700;color:#1d6b3c;">融会</span>：写完函数主动想“None 会进来吗”</div>
+    </div>
+    <div style="flex:1 1 220px;min-width:220px;max-width:320px;background:#fff;border:1px solid #d7dfe9;border-radius:10px;padding:14px;box-sizing:border-box;">
+      <div style="font-size:16px;font-weight:700;color:#14385c;">pytest · 验收工程师</div>
+      <div style="font-size:14px;color:#5b6472;margin:4px 0 8px;">tests/ 测试 → PASS / FAIL 报告</div>
+      <div style="font-size:14px;line-height:1.6;"><span style="font-weight:700;color:#b3401d;">坏了查</span>：FAIL 里 assert 那行就是证据，红的就是坏的</div>
+      <div style="font-size:14px;line-height:1.6;margin-top:6px;"><span style="font-weight:700;color:#1d6b3c;">融会</span>：先写测试再写实现（TDD 习惯）</div>
+    </div>
+    <div style="flex:1 1 220px;min-width:220px;max-width:320px;background:#fff;border:1px solid #d7dfe9;border-radius:10px;padding:14px;box-sizing:border-box;">
+      <div style="font-size:16px;font-weight:700;color:#14385c;">git · 时间机器</div>
+      <div style="font-size:14px;color:#5b6472;margin:4px 0 8px;">工作区改动 → 可回滚的 commit 历史</div>
+      <div style="font-size:14px;line-height:1.6;"><span style="font-weight:700;color:#b3401d;">坏了查</span>：<code>git status</code> 看当前在哪个区（工作区/暂存/HEAD）；删错用 <code>reflog</code> 捞回</div>
+      <div style="font-size:14px;line-height:1.6;margin-top:6px;"><span style="font-weight:700;color:#1d6b3c;">融会</span>：合并冲突敢自己解，坏了能自己救</div>
+    </div>
+  </div>
+
+  <div style="margin-top:18px;border-top:2px dashed #b9c4d4;padding-top:12px;font-size:14px;color:#4a5568;line-height:1.7;">
+    <span style="font-weight:700;color:#14385c;">练法 · 破坏-修复循环</span>：每个工具花 10 分钟故意弄坏再修好 —— 删掉 <code>name: str</code> 注解让 mypy 报错再补回；写错断言让 pytest 红再改对；乱排缩进让 ruff 报错再 <code>ruff format</code> 救回；commit 后 <code>git reset --soft</code> 看历史变了再 reflog 捞回。每走一遍，工具就从“鸟名字”变成“你手上的零件”。
+  </div>
+</div>
+</html>
