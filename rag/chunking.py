@@ -5,6 +5,10 @@
     - 一节一块；节超长（> WINDOW）时节内再固定窗口切（两级）。
     - 无标题文档退化为固定窗口切（旧 read_split_text 行为），标题兜底分支。
     - 标题行保留在块内——它是内容的锚点，也是检索时的命中信号。
+
+M3 修正（真实链路暴露）：
+    - 多级标题过度切分：`### 4.1` 子节也被切成独立块，导致顶级节只剩标题没正文。
+    - 改为动态分节级别：只按文档最浅标题层级分节，次级标题留在节内作内容锚点。
 """
 
 import re
@@ -22,6 +26,14 @@ def _is_heading(line: str) -> bool:
     return bool(_ATX_HEADING.match(s)) or (s.startswith('【') and s.endswith('】'))
 
 
+def _heading_level(line: str) -> int:
+    """标题层级：ATX 用 # 数量；【】视为 1 级（最浅）。"""
+    s = line.strip()
+    if s.startswith('#'):
+        return len(s) - len(s.lstrip('#'))
+    return 1
+
+
 def _split_window(text: str) -> Iterator[str]:
     """固定窗口切：WINDOW 长、OVERLAP 重叠，含头不含尾。"""
     step = WINDOW - OVERLAP
@@ -31,36 +43,33 @@ def _split_window(text: str) -> Iterator[str]:
         yield text[i: i + WINDOW]
 
 
+def _emit(section: str) -> Iterator[str]:
+    """节输出：超长节内窗口切，否则原样一块。"""
+    if len(section) > WINDOW:
+        yield from _split_window(section)
+    else:
+        yield section
+
+
 def chunk_markdown(text: str) -> Iterator[str]:
-    """两级切块：按标题分节；超长节内窗口切；无标题退化为窗口切。"""
+    """两级切块：按最浅标题分节；次级标题留在节内；超长节内窗口切；无标题退化为窗口切。"""
     lines = text.splitlines()
-    # any 函数实现 判断文件内容中是否存在标题，不存在的话自动走无标题固定窗口切分逻辑
-    if not any(_is_heading(line) for line in lines):
+    # 扫描全部标题层级，取最浅级作为分节级别（### 及更深并入所属节）
+    heads = [_heading_level(line) for line in lines if _is_heading(line)]
+    if not heads:
+        # 文档无任何标题，退化为固定窗口切
         yield from _split_window(text)
         return
+    split_level = min(heads)
 
     current: list[str] = []
     for line in lines:
-        # 判断是否是标题行
-        if _is_heading(line):
-            # 判断是否含内容 含有内容 先对上一步的标题+内容收尾
+        # 只有达到分节级别的标题才新开一节，其余（正文/次级标题）追加进当前节
+        if _is_heading(line) and _heading_level(line) <= split_level:
             if current:
-                section = '\n'.join(current).strip()
-                # 二级切块拆分 标题下的内容大于设定窗口长度 进行无标题切块逻辑
-                if len(section) > WINDOW:
-                    yield from _split_window(section)
-                else:
-                    yield section
-            # 不含内容，那么就作为 current 列表的第一个元素
+                yield from _emit('\n'.join(current).strip())
             current = [line]
         else:
-            # 非标题行，在current列表尾部追加内容即可
             current.append(line)
-    # 最后一部分，下面没有标题了，那么跳出循环的这最后一部分，再来执行下yield返回就完成了所有内容的切块了
     if current:
-        section = '\n'.join(current).strip()
-        # 二级切块拆分 标题下的内容大于设定窗口长度 进行无标题切块逻辑
-        if len(section) > WINDOW:
-            yield from _split_window(section)
-        else:
-            yield section
+        yield from _emit('\n'.join(current).strip())

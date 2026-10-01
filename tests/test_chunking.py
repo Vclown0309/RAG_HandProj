@@ -64,3 +64,22 @@ def test_single_section_without_heading_plus_heading_later():
     chunks = list(chunk_markdown(text))
     assert len(chunks) == 2
     assert '# 正式章节' in chunks[1]
+
+
+def test_subheading_merged_into_section():
+    """次级标题（###）不单独分节，并入所属 ## 节（M3 修复：防路标块）。"""
+    text = '## 4. 向量化\n### 4.1 结论\n结论正文\n## 5. 切块\n切块正文'
+    chunks = list(chunk_markdown(text))
+    assert len(chunks) == 2
+    assert '### 4.1 结论' in chunks[0]  # 次级标题留在节内作锚点
+    assert '结论正文' in chunks[0]
+    assert chunks[1].startswith('## 5. 切块')
+
+
+def test_deepest_heading_is_split_level():
+    """最浅标题是 # 时，##/### 全部并入该节。"""
+    text = '# 总览\n## 子节\n### 孙节\n正文\n# 第二总览\n内容'
+    chunks = list(chunk_markdown(text))
+    assert len(chunks) == 2
+    assert '### 孙节' in chunks[0]
+    assert chunks[1].startswith('# 第二总览')
