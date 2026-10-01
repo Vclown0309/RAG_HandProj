@@ -6,12 +6,16 @@ import struct
 import pytest
 
 from rag.store import (
+    add_history,
     clear_chunks,
     count_chunks,
+    delete_source,
     drop_table,
     fetch_all,
     from_blob,
+    get_history,
     init_db,
+    list_sources,
     search,
     store_chunk,
     store_chunks,
@@ -180,3 +184,45 @@ def test_init_db_is_idempotent(db):
     store_chunk("内容", vec_of(0.1), "doc/a.md", path=db)
     init_db(db)
     assert count_chunks(db) == 1
+
+
+# ------------------------------------------------------------------ 问答历史
+
+def test_add_and_get_history(db):
+    add_history("第一个问题", "答案一", path=db)
+    add_history("第二个问题", "答案二", path=db)
+    rows = get_history(path=db)
+    assert len(rows) == 2
+    # 最新在前
+    assert rows[0][1:3] == ("第二个问题", "答案二")
+    assert rows[1][1:3] == ("第一个问题", "答案一")
+    # 带时间戳
+    assert rows[0][3]
+
+
+def test_history_limit(db):
+    for i in range(5):
+        add_history(f"问题{i}", f"答案{i}", path=db)
+    assert len(get_history(limit=2, path=db)) == 2
+
+
+# ------------------------------------------------------------------ 文档管理
+
+def test_list_sources_groups_by_source(db):
+    store_chunk("a1", vec_of(0.1), "a.md", path=db)
+    store_chunk("a2", vec_of(0.1), "a.md", path=db)
+    store_chunk("b1", vec_of(0.1), "b.md", path=db)
+    assert list_sources(path=db) == [("a.md", 2), ("b.md", 1)]
+
+
+def test_delete_source_only_removes_target(db):
+    store_chunk("a1", vec_of(0.1), "a.md", path=db)
+    store_chunk("b1", vec_of(0.1), "b.md", path=db)
+    deleted = delete_source("a.md", path=db)
+    assert deleted == 1
+    assert count_chunks(db) == 1
+    assert list_sources(path=db) == [("b.md", 1)]
+
+
+def test_delete_missing_source_returns_zero(db):
+    assert delete_source("ghost.md", path=db) == 0

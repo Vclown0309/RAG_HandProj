@@ -33,6 +33,13 @@ CREATE TABLE IF NOT EXISTS chunks (
     chunk_hash TEXT    NOT NULL UNIQUE
 );
 CREATE INDEX IF NOT EXISTS idx_chunks_source ON chunks(source);
+
+CREATE TABLE IF NOT EXISTS history (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    query      TEXT NOT NULL,
+    answer     TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+);
 """
 
 
@@ -192,3 +199,41 @@ def search(
     ]
     scored.sort(key=lambda t: t[1], reverse=True)
     return scored[:top_k]
+
+
+# ---------------------------------------------------------------- 问答历史
+
+def add_history(query: str, answer: str, path: str = DB_PATH) -> int:
+    """记录一条问答历史，返回新行 id。"""
+    with closing(_connect(path)) as conn:
+        cur = conn.execute("INSERT INTO history (query, answer) VALUES (?, ?)", (query, answer))
+        conn.commit()
+        assert cur.lastrowid is not None
+        return cur.lastrowid
+
+
+def get_history(limit: int = 20, path: str = DB_PATH) -> list[tuple[int, str, str, str]]:
+    """最近问答历史：(id, query, answer, created_at)，最新在前。"""
+    with closing(_connect(path)) as conn:
+        return conn.execute(
+            "SELECT id, query, answer, created_at FROM history ORDER BY id DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+
+
+# ---------------------------------------------------------------- 文档管理
+
+def list_sources(path: str = DB_PATH) -> list[tuple[str, int]]:
+    """知识库文档清单：(source, 块数)，按来源名排序。"""
+    with closing(_connect(path)) as conn:
+        return conn.execute(
+            "SELECT source, COUNT(*) FROM chunks GROUP BY source ORDER BY source"
+        ).fetchall()
+
+
+def delete_source(source: str, path: str = DB_PATH) -> int:
+    """删除某文档的全部块，返回删除行数。"""
+    with closing(_connect(path)) as conn:
+        cur = conn.execute("DELETE FROM chunks WHERE source = ?", (source,))
+        conn.commit()
+        return cur.rowcount

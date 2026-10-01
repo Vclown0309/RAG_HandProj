@@ -58,12 +58,13 @@ def test_empty_input():
     assert list(chunk_markdown('')) == []
 
 
-def test_single_section_without_heading_plus_heading_later():
-    """文档开头无标题段落 + 后续标题：开头段落并入第一节。"""
+def test_leading_text_merged_into_first_section():
+    """文档开头无标题段落：并入首个分节，不单独成块（检索时前言不孤立）。"""
     text = '前言段落\n\n# 正式章节\n正文内容'
     chunks = list(chunk_markdown(text))
-    assert len(chunks) == 2
-    assert '# 正式章节' in chunks[1]
+    assert len(chunks) == 1
+    assert chunks[0].startswith('前言段落')
+    assert '# 正式章节' in chunks[0]
 
 
 def test_subheading_merged_into_section():
@@ -77,9 +78,21 @@ def test_subheading_merged_into_section():
 
 
 def test_deepest_heading_is_split_level():
-    """最浅标题是 # 时，##/### 全部并入该节。"""
+    """最浅标题 # 出现多次时是分节级别，##/### 全部并入该节。"""
     text = '# 总览\n## 子节\n### 孙节\n正文\n# 第二总览\n内容'
     chunks = list(chunk_markdown(text))
     assert len(chunks) == 2
     assert '### 孙节' in chunks[0]
     assert chunks[1].startswith('# 第二总览')
+
+
+def test_single_document_title_not_split_level():
+    """单条 # 主标题不作为分节点；## 章节才是（M4 修复：防整篇并一节）。"""
+    text = '# 文档主标题\n## 第一章\n### 1.1 小节\n内容A\n## 第二章\n内容B'
+    chunks = list(chunk_markdown(text))
+    assert len(chunks) == 2
+    # 第一章块包含主标题 + 第一章（含其子节）
+    assert chunks[0].startswith('# 文档主标题')
+    assert '### 1.1 小节' in chunks[0]
+    assert '内容A' in chunks[0]
+    assert chunks[1].startswith('## 第二章')

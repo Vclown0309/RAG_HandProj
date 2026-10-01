@@ -19,13 +19,15 @@ from rag.store import count_chunks, init_db, store_chunks
 def build_kb(file: str, reset: bool = False) -> int:
     """构建知识库，返回本次入库块数。"""
     init_db(reset=reset)
-    text = Path(file).read_text(encoding='utf-8')
+    path = Path(file)
+    text = path.read_text(encoding='utf-8')
     chunks = list(chunk_markdown(normalize_md(text)))
+    source = path.name
 
     rows = []
-    for i, chunk in enumerate(chunks):
+    for chunk in chunks:
         vec = embed(chunk)
-        rows.append((chunk, vec, f'{Path(file).name}#{i}'))
+        rows.append((chunk, vec, source))
     store_chunks(rows)
     return len(rows)
 
