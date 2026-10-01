@@ -1,1 +1,15 @@
 .venv/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# 数据库（kb.db 是运行产物，不入库）
+*.db
+
+# 本地 wheel（临时安装产物，不入库）
+*.whl
