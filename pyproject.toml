@@ -26,7 +26,7 @@ target-version = "py312"
 
 [tool.mypy]
 python_version = "3.12"
-files = ["main.py", "tests"]
+files = ["main.py", "rag", "tests", "scripts"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
