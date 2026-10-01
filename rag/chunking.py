@@ -1,14 +1,23 @@
-"""切块器：两级策略（标题分节 + 超长节内固定窗口 + 无标题兜底）。
+"""切块器：两级策略（标题分节 + 超长节内窗口切 + 无标题兜底）。
 
 策略来源（M2 设计）：
     - 标题是语义边界：`# `（ATX，anydoc/md 输出）与 `【】`（学习手册原生）都是分节点。
-    - 一节一块；节超长（> WINDOW）时节内再固定窗口切（两级）。
-    - 无标题文档退化为固定窗口切（旧 read_split_text 行为），标题兜底分支。
+    - 一节一块；节超长（> WINDOW）时节内再窗口切（两级）。
+    - 无标题文档退化为窗口切（旧 read_split_text 行为），标题兜底分支。
     - 标题行保留在块内——它是内容的锚点，也是检索时的命中信号。
 
 M3 修正（真实链路暴露）：
     - 多级标题过度切分：`### 4.1` 子节也被切成独立块，导致顶级节只剩标题没正文。
     - 改为动态分节级别：只按文档最浅标题层级分节，次级标题留在节内作内容锚点。
+
+M4 修正（真实链路暴露）：
+    - 单条极浅标题（文档主标题 `#`）不能当分节点：全篇并成一节被窗口切。
+    - 分节级别 = 出现 >= 2 次的最浅层级；文档头（主标题/序言）并入首节。
+
+M5 修正（真实链路暴露）：
+    - 字符级硬切会把 markdown 表格拦腰切断（半截表格无意义）。
+    - 窗口切改为行级：段落边界断块 + 表格行保护 + 超长单行行内兜底。
+    - 行级切在语义边界（段落/行）断，不再需要字符级重叠。
 """
 
 import re
@@ -16,7 +25,6 @@ from collections import Counter
 from collections.abc import Iterator
 
 WINDOW = 500
-OVERLAP = 50
 
 _ATX_HEADING = re.compile(r'^#{1,6}\s+\S')
 
@@ -49,12 +57,49 @@ def _split_level_of(heads: list[int]) -> int:
 
 
 def _split_window(text: str) -> Iterator[str]:
-    """固定窗口切：WINDOW 长、OVERLAP 重叠，含头不含尾。"""
-    step = WINDOW - OVERLAP
-    # 直接通过range来实现 步长 以及 始末点的限制
-    # 利用yield 加 每次窗口移动的列表切片 同时完成了 500个每块 每块重复50个字的目标
-    for i in range(0, len(text), step):
-        yield text[i: i + WINDOW]
+    """行级窗口切：段落边界断块 + 表格行保护 + 超长单行行内兜底。
+
+    字符级硬切会把句子/表格从中间切断（表格变半截就没意义了）。
+    行级切在语义边界（段落/行）断块，语义完整，不再需要字符级重叠；
+    表格行（`|` 开头）成组保留，不在表格中间断块。
+    """
+    lines = text.splitlines()
+    buf: list[str] = []
+    buf_len = 0
+
+    def flush() -> Iterator[str]:
+        if buf:
+            yield '\n'.join(buf)
+
+    for line in lines:
+        # 超长单行（行级无法切）：行内字符切兜底
+        if len(line) > WINDOW:
+            yield from flush()
+            buf, buf_len = [], 0
+            for i in range(0, len(line), WINDOW):
+                yield line[i:i + WINDOW]
+            continue
+
+        stripped = line.strip()
+        is_table_row = stripped.startswith('|')
+        prev_is_table = bool(buf) and buf[-1].strip().startswith('|')
+        over = buf_len >= WINDOW
+
+        # 断块：超窗 + 表格已完整收尾 +（段落边界空行，或连续长文兜底上限）
+        if over and not is_table_row and not prev_is_table and (
+            not stripped or buf_len >= WINDOW + 200
+        ):
+            yield '\n'.join(buf)
+            buf, buf_len = [], 0
+
+        # 断块后的空行是段落分隔符，不进入下一块
+        if not stripped and not buf:
+            continue
+
+        buf.append(line)
+        buf_len += len(line) + 1
+
+    yield from flush()
 
 
 def _emit(section: str) -> Iterator[str]:
