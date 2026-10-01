@@ -12,6 +12,7 @@ M3 修正（真实链路暴露）：
 """
 
 import re
+from collections import Counter
 from collections.abc import Iterator
 
 WINDOW = 500
@@ -34,6 +35,19 @@ def _heading_level(line: str) -> int:
     return 1
 
 
+def _split_level_of(heads: list[int]) -> int:
+    """分节级别：出现 >= 2 次的最浅标题级别（章节标题）。
+
+    单条的极浅标题（如文档主标题 `#`）不作为分节点——
+    它是整篇文档的名字，不是章节边界。
+    """
+    counter = Counter(heads)
+    for level in sorted(counter):
+        if counter[level] >= 2:
+            return level
+    return min(heads)
+
+
 def _split_window(text: str) -> Iterator[str]:
     """固定窗口切：WINDOW 长、OVERLAP 重叠，含头不含尾。"""
     step = WINDOW - OVERLAP
@@ -54,21 +68,29 @@ def _emit(section: str) -> Iterator[str]:
 def chunk_markdown(text: str) -> Iterator[str]:
     """两级切块：按最浅标题分节；次级标题留在节内；超长节内窗口切；无标题退化为窗口切。"""
     lines = text.splitlines()
-    # 扫描全部标题层级，取最浅级作为分节级别（### 及更深并入所属节）
+    # 扫描全部标题层级，取「出现 >= 2 次的最浅级」作为分节级别
+    # （### 及更深并入所属节；单条主标题不作为分节点）
     heads = [_heading_level(line) for line in lines if _is_heading(line)]
     if not heads:
         # 文档无任何标题，退化为固定窗口切
         yield from _split_window(text)
         return
-    split_level = min(heads)
+    split_level = _split_level_of(heads)
 
     current: list[str] = []
+    started = False
     for line in lines:
-        # 只有达到分节级别的标题才新开一节，其余（正文/次级标题）追加进当前节
-        if _is_heading(line) and _heading_level(line) <= split_level:
-            if current:
-                yield from _emit('\n'.join(current).strip())
-            current = [line]
+        # 只有恰好等于分节级别的标题才新开一节；
+        # 更浅的单条主标题并入首节，更深（###+）留在节内作内容锚点
+        if _is_heading(line) and _heading_level(line) == split_level:
+            if not started:
+                # 文档头（主标题/序言）并进第一节，不单独成块
+                current.append(line)
+                started = True
+            else:
+                if current:
+                    yield from _emit('\n'.join(current).strip())
+                current = [line]
         else:
             current.append(line)
     if current:
