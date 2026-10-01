@@ -38,8 +38,8 @@ def build_answer_prompt(query: str, hits: list[tuple[int, float, str, str]]) -> 
     """
     parts = [
         '根据以下资料回答问题，只依据资料，不要编造资料外的内容。',
-        '回答时如需引用依据，用【资料N】标注，N 必须与实际内容所在的资料编号一致；'
-        '拿不准编号时不要标编号。资料里的目录、链接文字不算内容本身。',
+        ('回答时如需引用依据，用【资料N】标注，N 必须与实际内容所在的资料编号一致；'
+         '拿不准编号时不要标编号。资料里的目录、链接文字不算内容本身。'),
     ]
     for i, (_rid, _score, content, _source) in enumerate(hits, 1):
         parts.append(f'【资料{i}】\n{content}')

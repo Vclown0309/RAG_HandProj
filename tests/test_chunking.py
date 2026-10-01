@@ -55,7 +55,7 @@ def test_overlong_section_split_inside():
 
 def test_table_not_cut_in_half():
     """表格行不可切断：| 连续行成组保留，窗口切不在表格中间断（M5 修复）。"""
-    rows = ''.join('| 参数%d | 值%d |\n' % (i, i) for i in range(60))
+    rows = ''.join(f'| 参数{i} | 值{i} |\n' for i in range(60))
     text = '# 参数表\n| 参数 | 值 |\n|---|---|\n' + rows + '\n收尾正文。' * 40
     chunks = list(chunk_markdown(text))
     assert len(chunks) >= 2
@@ -73,7 +73,7 @@ def test_table_not_cut_in_half():
 def test_window_cuts_at_paragraph_boundary():
     """行级窗口切在段落边界（空行）断，不切句子。"""
     para = '这是第%d段。' * 50 % tuple(range(1, 51))  # 约 300 字一段
-    text = '\n\n'.join([para, para, para])  # 三段共 900+ 字
+    text = f'{para}\n\n{para}\n\n{para}'  # 三段共 900+ 字
     chunks = list(chunk_markdown(text))
     assert len(chunks) >= 2
     # 每块开头是完整段落（以'这是'起头），没有被拦腰切断的句子
