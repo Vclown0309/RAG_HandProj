@@ -42,23 +42,26 @@
     line-height: 1.7; font-size: 14px; white-space: pre-wrap; word-break: break-word;
   }
   #answer-area .loading { color: #6b7280; }
-  #answer-area p { white-space: normal; margin: 0 0 8px; }
-  #answer-area code { background: #f0f2f5; padding: 1px 4px; border-radius: 3px;
+  #answer-area p, .source-body p { white-space: normal; margin: 0 0 8px; }
+  #answer-area code, .source-body code { background: #f0f2f5; padding: 1px 4px; border-radius: 3px;
     font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
-  #answer-area pre { background: #1f2430; color: #e6e9f0; padding: 12px; border-radius: 6px;
+  #answer-area pre, .source-body pre { background: #1f2430; color: #e6e9f0; padding: 12px; border-radius: 6px;
     overflow-x: auto; margin: 8px 0; font-size: 12px; line-height: 1.6; }
-  #answer-area pre code { background: none; color: inherit; padding: 0; }
-  #answer-area h1, #answer-area h2, #answer-area h3, #answer-area h4 {
+  #answer-area pre code, .source-body pre code { background: none; color: inherit; padding: 0; }
+  #answer-area h1, #answer-area h2, #answer-area h3, #answer-area h4,
+  .source-body h1, .source-body h2, .source-body h3, .source-body h4 {
     margin: 14px 0 6px; color: #1f2430; line-height: 1.4; }
-  #answer-area h1 { font-size: 17px; } #answer-area h2 { font-size: 16px; }
-  #answer-area h3 { font-size: 15px; } #answer-area h4 { font-size: 14px; }
-  #answer-area ul, #answer-area ol { margin: 6px 0 10px 22px; white-space: normal; }
-  #answer-area li { margin: 3px 0; }
-  #answer-area table { border-collapse: collapse; margin: 8px 0; width: 100%; }
-  #answer-area th, #answer-area td { border: 1px solid #d0d3da; padding: 5px 9px;
+  #answer-area h1, .source-body h1 { font-size: 17px; }
+  #answer-area h2, .source-body h2 { font-size: 16px; }
+  #answer-area h3, .source-body h3 { font-size: 15px; }
+  #answer-area h4, .source-body h4 { font-size: 14px; }
+  #answer-area ul, #answer-area ol, .source-body ul, .source-body ol { margin: 6px 0 10px 22px; white-space: normal; }
+  #answer-area li, .source-body li { margin: 3px 0; }
+  #answer-area table, .source-body table { border-collapse: collapse; margin: 8px 0; width: 100%; }
+  #answer-area th, #answer-area td, .source-body th, .source-body td { border: 1px solid #d0d3da; padding: 5px 9px;
     font-size: 13px; text-align: left; }
-  #answer-area th { background: #f0f2f5; }
-  #answer-area blockquote { border-left: 3px solid #d0d3da; padding-left: 10px;
+  #answer-area th, .source-body th { background: #f0f2f5; }
+  #answer-area blockquote, .source-body blockquote { border-left: 3px solid #d0d3da; padding-left: 10px;
     color: #555; margin: 8px 0; white-space: normal; }
   #answer-area code { background: #f0f2f5; padding: 1px 4px; border-radius: 3px; }
   aside {
@@ -181,7 +184,7 @@
         '<span class="src-idx">[资料 ' + (i + 1) + ']</span>';
       var body = document.createElement('div');
       body.className = 'source-body';
-      body.innerHTML = '<h3>' + escapeHtml(s.source) + '</h3><pre>' + escapeHtml(s.content) + '</pre>';
+      body.innerHTML = '<h3>' + escapeHtml(s.source) + '</h3>' + renderMarkdown(s.content);
       btn.addEventListener('click', function () {
         var others = sourcesList.querySelectorAll('.source-body.open');
         Array.prototype.forEach.call(others, function (el) {
