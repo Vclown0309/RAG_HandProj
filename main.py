@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from rag.chunking import chunk_markdown
@@ -23,6 +25,9 @@ from rag.store import (
 # 数据库路径：显式传参，测试可替换成临时库，避免污染真实 kb.db
 DB_LOCAL = DB_PATH
 
+# 前端演示页（离线单页，无外部依赖）
+STATIC_DIR = Path(__file__).parent / 'static'
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -32,9 +37,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
-# 数据库路径：显式传参，测试可替换成临时库，避免污染真实 kb.db
-DB_LOCAL = DB_PATH
+app.mount('/static', StaticFiles(directory=str(STATIC_DIR)), name='static')
 
 
 class AskRequest(BaseModel):
@@ -43,7 +46,8 @@ class AskRequest(BaseModel):
 
 @app.get('/')
 async def root():
-    return {'service': 'RAG 问答', 'status': 'ok'}
+    """演示页：答案 + 可点击参考源（侧边栏展开原文块）。"""
+    return FileResponse(str(STATIC_DIR / 'index.html'))
 
 
 @app.post('/ask')

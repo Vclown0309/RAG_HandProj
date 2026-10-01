@@ -27,7 +27,16 @@ def tmp_db(tmp_path, monkeypatch):
 def test_root() -> None:
     resp = client.get('/')
     assert resp.status_code == 200
-    assert resp.json() == {'service': 'RAG 问答', 'status': 'ok'}
+    assert 'text/html' in resp.headers['content-type']
+    assert 'RAG 演示台' in resp.text
+
+
+def test_static_page_has_source_panel() -> None:
+    """演示页含参考源侧边栏与提问表单。"""
+    resp = client.get('/')
+    assert resp.status_code == 200
+    assert 'sources-panel' in resp.text
+    assert 'ask-form' in resp.text
 
 
 def test_ask_full_pipeline(monkeypatch, tmp_db) -> None:
