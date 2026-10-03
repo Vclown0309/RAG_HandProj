@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from rag.chunking import chunk_markdown
 from rag.embed import EmbeddingError, embed
+from rag.extract import extract_markdown
 from rag.generate import GenerateError, build_answer_prompt, chat
 from rag.normalize import normalize_md
 from rag.store import (
@@ -97,12 +98,13 @@ def library():
 
 @app.post('/library')
 async def add_doc(file: Annotated[UploadFile, File()]):
-    """上传 txt/md，归一化 → 切块 → 向量化 → 追加入库（幂等）。"""
+    """上传文档（txt/md/docx），编码自适应，提取 → 归一化 → 切块 → 向量化 → 入库（幂等）。"""
     source = Path(file.filename or 'untitled.txt').name
+    data = await file.read()
     try:
-        raw = (await file.read()).decode('utf-8')
-    except UnicodeDecodeError as err:
-        raise HTTPException(status_code=400, detail='仅支持 UTF-8 编码的文本文件') from err
+        raw = extract_markdown(source, data)
+    except ValueError as err:
+        raise HTTPException(status_code=400, detail=str(err)) from err
 
     chunks = list(chunk_markdown(normalize_md(raw)))
     if not chunks:
