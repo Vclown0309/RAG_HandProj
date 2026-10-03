@@ -153,11 +153,18 @@ def test_docs_bad_binary(tmp_db) -> None:
     assert '编码' in resp.json()['detail']
 
 
-def test_docs_unsupported_ext(tmp_db) -> None:
-    """不支持扩展名：400。"""
+def test_docs_malformed_pdf(tmp_db) -> None:
+    """损坏的 pdf（只有文件头）：anydoc 识别为损坏文件，400。"""
     resp = client.post('/library', files={'file': ('a.pdf', b'%PDF-1.4', 'application/pdf')})
     assert resp.status_code == 400
-    assert '暂支持' in resp.json()['detail']
+    assert '损坏' in resp.json()['detail']
+
+
+def test_docs_unsupported_ext(tmp_db) -> None:
+    """anydoc 之外的扩展名（html）：400。"""
+    resp = client.post('/library', files={'file': ('a.html', b'<html><body>hi</body></html>', 'text/html')})
+    assert resp.status_code == 400
+    assert '暂不支持' in resp.json()['detail']
 
 
 def test_docs_docx_ok(tmp_db, monkeypatch) -> None:
