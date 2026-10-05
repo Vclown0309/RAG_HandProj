@@ -38,7 +38,7 @@ def test_heading_kept_as_anchor():
 
 
 def test_no_heading_falls_back_to_window():
-    """无标题文档退化为固定窗口切。"""
+    """无标题文档退化为窗口切。"""
     body = '这是一段没有标题的纯正文。' * 200  # 约 2600 字
     chunks = list(chunk_markdown(body))
     assert len(chunks) > 1
@@ -46,11 +46,38 @@ def test_no_heading_falls_back_to_window():
 
 
 def test_overlong_section_split_inside():
-    """超长节内再固定窗口切（两级策略）。"""
+    """超长节内再窗口切（两级策略）。"""
     text = '# 超长节\n' + '正文内容。' * 400  # 约 2000 字
     chunks = list(chunk_markdown(text))
     assert len(chunks) > 1
     assert all(len(c) <= WINDOW for c in chunks)
+
+
+def test_table_not_cut_in_half():
+    """表格行不可切断：| 连续行成组保留，窗口切不在表格中间断（M5 修复）。"""
+    rows = ''.join(f'| 参数{i} | 值{i} |\n' for i in range(60))
+    text = '# 参数表\n| 参数 | 值 |\n|---|---|\n' + rows + '\n收尾正文。' * 40
+    chunks = list(chunk_markdown(text))
+    assert len(chunks) >= 2
+    # 表格完整保留在首块（表头到末行不缺）
+    assert chunks[0].startswith('# 参数表')
+    assert '| 参数 | 值 |' in chunks[0]
+    assert '| 参数59 | 值59 |' in chunks[0]
+    # 其余块不含表格行（表格未被切断/切碎）
+    assert all(
+        not any(l.strip().startswith('|') for l in c.splitlines())
+        for c in chunks[1:]
+    )
+
+
+def test_window_cuts_at_paragraph_boundary():
+    """行级窗口切在段落边界（空行）断，不切句子。"""
+    para = '这是第%d段。' * 50 % tuple(range(1, 51))  # 约 300 字一段
+    text = f'{para}\n\n{para}\n\n{para}'  # 三段共 900+ 字
+    chunks = list(chunk_markdown(text))
+    assert len(chunks) >= 2
+    # 每块开头是完整段落（以'这是'起头），没有被拦腰切断的句子
+    assert all(c.startswith('这是') for c in chunks)
 
 
 def test_empty_input():

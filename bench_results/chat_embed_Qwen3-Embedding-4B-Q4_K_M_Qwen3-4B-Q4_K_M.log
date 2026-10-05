@@ -1,0 +1,167 @@
+0.00.003.467 I srv  llama_server: initializing ...
+0.00.094.795 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.095.041 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+0.00.113.228 I srv    load_model: loading model 'D:\llamacpp_models\qwen3-embed\Qwen3-Embedding-4B-Q4_K_M.gguf'
+0.00.493.136 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.12.559.549 I cmn          init: llama threadpool init, n_threads = 24
+0.12.559.581 W init: embeddings required but some input tokens were not marked as outputs -> overriding
+0.12.682.435 W init: embeddings required but some input tokens were not marked as outputs -> overriding
+0.12.696.808 I srv    load_model: initializing, n_slots = 4, n_ctx_slot = 8192, kv_unified = 'true'
+0.12.700.751 I srv  llama_server: model loaded
+0.12.700.758 I srv  llama_server: listening on http://127.0.0.1:8093
+0.14.531.231 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = -1
+0.14.531.250 I slot launch_slot_: id  3 | task 0 | processing task, is_child = 0
+0.14.672.601 I slot      release: id  3 | task 0 | stop processing: n_tokens = 199, truncated = 0
+0.14.675.649 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = -1
+0.14.675.654 I slot launch_slot_: id  2 | task 2 | processing task, is_child = 0
+0.14.757.279 I slot      release: id  2 | task 2 | stop processing: n_tokens = 154, truncated = 0
+0.14.760.728 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = -1
+0.14.760.735 I slot launch_slot_: id  1 | task 4 | processing task, is_child = 0
+0.14.932.901 I slot      release: id  1 | task 4 | stop processing: n_tokens = 338, truncated = 0
+0.14.946.579 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+0.14.946.585 I slot launch_slot_: id  0 | task 6 | processing task, is_child = 0
+0.15.035.026 I slot      release: id  0 | task 6 | stop processing: n_tokens = 219, truncated = 0
+0.15.038.051 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 14669131
+0.15.038.057 I slot launch_slot_: id  3 | task 8 | processing task, is_child = 0
+0.15.104.557 I slot      release: id  3 | task 8 | stop processing: n_tokens = 182, truncated = 0
+0.15.120.169 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 14753809
+0.15.120.176 I slot launch_slot_: id  2 | task 10 | processing task, is_child = 0
+0.15.185.461 I slot      release: id  2 | task 10 | stop processing: n_tokens = 189, truncated = 0
+0.15.188.380 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 14929431
+0.15.188.386 I slot launch_slot_: id  1 | task 12 | processing task, is_child = 0
+0.15.238.353 I slot      release: id  1 | task 12 | stop processing: n_tokens = 126, truncated = 0
+0.15.241.288 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 15031556
+0.15.241.294 I slot launch_slot_: id  0 | task 14 | processing task, is_child = 0
+0.15.291.477 I slot      release: id  0 | task 14 | stop processing: n_tokens = 177, truncated = 0
+0.15.294.317 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 15101086
+0.15.294.326 I slot launch_slot_: id  3 | task 16 | processing task, is_child = 0
+0.15.347.118 I slot      release: id  3 | task 16 | stop processing: n_tokens = 160, truncated = 0
+0.15.350.074 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 15181991
+0.15.350.081 I slot launch_slot_: id  2 | task 18 | processing task, is_child = 0
+0.15.403.339 I slot      release: id  2 | task 18 | stop processing: n_tokens = 184, truncated = 0
+0.15.420.539 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 15234882
+0.15.420.547 I slot launch_slot_: id  1 | task 20 | processing task, is_child = 0
+0.15.490.637 I slot      release: id  1 | task 20 | stop processing: n_tokens = 277, truncated = 0
+0.15.493.720 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 15288006
+0.15.493.726 I slot launch_slot_: id  0 | task 22 | processing task, is_child = 0
+0.15.574.929 I slot      release: id  0 | task 22 | stop processing: n_tokens = 286, truncated = 0
+0.15.578.128 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 15343647
+0.15.578.133 I slot launch_slot_: id  3 | task 24 | processing task, is_child = 0
+0.15.770.266 I slot      release: id  3 | task 24 | stop processing: n_tokens = 429, truncated = 0
+0.15.774.004 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 15399868
+0.15.774.010 I slot launch_slot_: id  2 | task 26 | processing task, is_child = 0
+0.15.844.643 I slot      release: id  2 | task 26 | stop processing: n_tokens = 101, truncated = 0
+0.15.847.612 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 15487168
+0.15.847.620 I slot launch_slot_: id  1 | task 28 | processing task, is_child = 0
+0.15.896.221 I slot      release: id  1 | task 28 | stop processing: n_tokens = 183, truncated = 0
+0.15.899.582 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 15571459
+0.15.899.587 I slot launch_slot_: id  0 | task 30 | processing task, is_child = 0
+0.15.978.046 I slot      release: id  0 | task 30 | stop processing: n_tokens = 344, truncated = 0
+0.16.001.586 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 15766796
+0.16.001.593 I slot launch_slot_: id  3 | task 32 | processing task, is_child = 0
+0.16.061.374 I slot      release: id  3 | task 32 | stop processing: n_tokens = 107, truncated = 0
+0.16.064.319 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 15841173
+0.16.064.326 I slot launch_slot_: id  2 | task 34 | processing task, is_child = 0
+0.16.108.040 I slot      release: id  2 | task 34 | stop processing: n_tokens = 139, truncated = 0
+0.16.111.170 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 15892750
+0.16.111.176 I slot launch_slot_: id  1 | task 36 | processing task, is_child = 0
+0.16.167.642 I slot      release: id  1 | task 36 | stop processing: n_tokens = 214, truncated = 0
+0.16.190.872 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 15974576
+0.16.190.879 I slot launch_slot_: id  0 | task 38 | processing task, is_child = 0
+0.16.270.941 I slot      release: id  0 | task 38 | stop processing: n_tokens = 321, truncated = 0
+0.16.273.699 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 16057903
+0.16.273.704 I slot launch_slot_: id  3 | task 40 | processing task, is_child = 0
+0.16.321.036 I slot      release: id  3 | task 40 | stop processing: n_tokens = 15, truncated = 0
+0.16.324.048 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 16104570
+0.16.324.053 I slot launch_slot_: id  2 | task 42 | processing task, is_child = 0
+0.16.352.925 I slot      release: id  2 | task 42 | stop processing: n_tokens = 110, truncated = 0
+0.16.355.827 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 16164172
+0.16.355.832 I slot launch_slot_: id  1 | task 44 | processing task, is_child = 0
+0.16.400.717 I slot      release: id  1 | task 44 | stop processing: n_tokens = 160, truncated = 0
+0.16.427.580 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 16267470
+0.16.427.585 I slot launch_slot_: id  0 | task 46 | processing task, is_child = 0
+0.16.487.422 I slot      release: id  0 | task 46 | stop processing: n_tokens = 232, truncated = 0
+0.16.490.156 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 16317565
+0.16.490.162 I slot launch_slot_: id  3 | task 48 | processing task, is_child = 0
+0.16.532.353 I slot      release: id  3 | task 48 | stop processing: n_tokens = 100, truncated = 0
+0.16.535.149 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 16349454
+0.16.535.155 I slot launch_slot_: id  2 | task 50 | processing task, is_child = 0
+0.16.555.196 I slot      release: id  2 | task 50 | stop processing: n_tokens = 12, truncated = 0
+0.16.562.077 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 16397246
+0.16.562.083 I slot launch_slot_: id  1 | task 52 | processing task, is_child = 0
+0.16.576.385 I slot      release: id  1 | task 52 | stop processing: n_tokens = 11, truncated = 0
+0.16.601.870 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 16483952
+0.16.601.876 I slot launch_slot_: id  0 | task 54 | processing task, is_child = 0
+0.16.616.061 I slot      release: id  0 | task 54 | stop processing: n_tokens = 14, truncated = 0
+0.16.633.311 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 16528882
+0.16.633.316 I slot launch_slot_: id  3 | task 56 | processing task, is_child = 0
+0.16.648.057 I slot      release: id  3 | task 56 | stop processing: n_tokens = 17, truncated = 0
+0.16.655.287 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 16551726
+0.16.655.295 I slot launch_slot_: id  2 | task 58 | processing task, is_child = 0
+0.16.670.092 I slot      release: id  2 | task 58 | stop processing: n_tokens = 12, truncated = 0
+0.16.676.898 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 16572914
+0.16.676.905 I slot launch_slot_: id  1 | task 60 | processing task, is_child = 0
+0.16.691.178 I slot      release: id  1 | task 60 | stop processing: n_tokens = 10, truncated = 0
+0.16.711.577 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 16612590
+0.16.711.585 I slot launch_slot_: id  0 | task 62 | processing task, is_child = 0
+0.16.726.261 I slot      release: id  0 | task 62 | stop processing: n_tokens = 13, truncated = 0
+0.16.758.048 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 16644588
+0.16.758.056 I slot launch_slot_: id  3 | task 64 | processing task, is_child = 0
+0.16.772.331 I slot      release: id  3 | task 64 | stop processing: n_tokens = 9, truncated = 0
+0.16.790.073 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 16666621
+0.16.790.080 I slot launch_slot_: id  2 | task 66 | processing task, is_child = 0
+0.16.804.173 I slot      release: id  2 | task 66 | stop processing: n_tokens = 12, truncated = 0
+0.16.810.843 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 16687707
+0.16.810.847 I slot launch_slot_: id  1 | task 68 | processing task, is_child = 0
+0.16.824.932 I slot      release: id  1 | task 68 | stop processing: n_tokens = 9, truncated = 0
+0.16.831.547 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 16722790
+0.16.831.552 I slot launch_slot_: id  0 | task 70 | processing task, is_child = 0
+0.16.845.228 I slot      release: id  0 | task 70 | stop processing: n_tokens = 11, truncated = 0
+0.16.867.239 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 16768860
+0.16.867.246 I slot launch_slot_: id  3 | task 72 | processing task, is_child = 0
+0.16.880.739 I slot      release: id  3 | task 72 | stop processing: n_tokens = 11, truncated = 0
+0.16.898.071 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 16800701
+0.16.898.076 I slot launch_slot_: id  2 | task 74 | processing task, is_child = 0
+0.16.911.697 I slot      release: id  2 | task 74 | stop processing: n_tokens = 12, truncated = 0
+0.18.458.902 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 16821462
+0.18.458.909 I slot launch_slot_: id  1 | task 76 | processing task, is_child = 0
+0.18.475.748 I slot      release: id  1 | task 76 | stop processing: n_tokens = 11, truncated = 0
+0.20.410.665 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 16841757
+0.20.410.671 I slot launch_slot_: id  0 | task 78 | processing task, is_child = 0
+0.20.423.376 I slot      release: id  0 | task 78 | stop processing: n_tokens = 14, truncated = 0
+0.22.218.007 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 16877268
+0.22.218.015 I slot launch_slot_: id  3 | task 80 | processing task, is_child = 0
+0.22.230.229 I slot      release: id  3 | task 80 | stop processing: n_tokens = 17, truncated = 0
+0.23.816.481 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 16908226
+0.23.816.487 I slot launch_slot_: id  2 | task 82 | processing task, is_child = 0
+0.23.829.105 I slot      release: id  2 | task 82 | stop processing: n_tokens = 12, truncated = 0
+0.26.235.594 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 18472277
+0.26.235.600 I slot launch_slot_: id  1 | task 84 | processing task, is_child = 0
+0.26.247.533 I slot      release: id  1 | task 84 | stop processing: n_tokens = 10, truncated = 0
+0.27.999.809 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 20419905
+0.27.999.816 I slot launch_slot_: id  0 | task 86 | processing task, is_child = 0
+0.28.011.925 I slot      release: id  0 | task 86 | stop processing: n_tokens = 13, truncated = 0
+0.29.079.087 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 22226758
+0.29.079.093 I slot launch_slot_: id  3 | task 88 | processing task, is_child = 0
+0.29.091.458 I slot      release: id  3 | task 88 | stop processing: n_tokens = 9, truncated = 0
+0.31.459.593 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 23825635
+0.31.459.599 I slot launch_slot_: id  2 | task 90 | processing task, is_child = 0
+0.31.472.163 I slot      release: id  2 | task 90 | stop processing: n_tokens = 12, truncated = 0
+0.33.115.212 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 26244062
+0.33.115.218 I slot launch_slot_: id  1 | task 92 | processing task, is_child = 0
+0.33.127.471 I slot      release: id  1 | task 92 | stop processing: n_tokens = 9, truncated = 0
+0.34.821.013 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 28008454
+0.34.821.020 I slot launch_slot_: id  0 | task 94 | processing task, is_child = 0
+0.34.832.949 I slot      release: id  0 | task 94 | stop processing: n_tokens = 11, truncated = 0
+0.36.268.543 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = 29087987
+0.36.268.550 I slot launch_slot_: id  3 | task 96 | processing task, is_child = 0
+0.36.278.078 I slot      release: id  3 | task 96 | stop processing: n_tokens = 11, truncated = 0
+0.38.372.378 I slot get_availabl: id  2 | task -1 | selected slot by LRU, t_last = 31468692
+0.38.372.384 I slot launch_slot_: id  2 | task 98 | processing task, is_child = 0
+0.38.386.469 I slot      release: id  2 | task 98 | stop processing: n_tokens = 7, truncated = 0
+0.39.616.674 I slot get_availabl: id  1 | task -1 | selected slot by LRU, t_last = 33123999
+0.39.616.681 I slot launch_slot_: id  1 | task 100 | processing task, is_child = 0
+0.39.627.547 I slot      release: id  1 | task 100 | stop processing: n_tokens = 6, truncated = 0
+0.40.719.569 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 34829477
+0.40.719.577 I slot launch_slot_: id  0 | task 102 | processing task, is_child = 0
+0.40.732.526 I slot      release: id  0 | task 102 | stop processing: n_tokens = 10, truncated = 0

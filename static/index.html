@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 演示台</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, "Microsoft YaHei", sans-serif;
+    background: #f5f6f8; color: #222; min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  header {
+    background: #1f2430; color: #fff; padding: 18px 24px;
+  }
+  header h1 { font-size: 20px; letter-spacing: 1px; }
+  header p { font-size: 12px; color: #9aa4b5; margin-top: 4px; }
+  main {
+    flex: 1; display: flex; gap: 16px; padding: 16px 24px; max-width: 1200px;
+    width: 100%; margin: 0 auto; align-items: flex-start;
+  }
+  .ask-panel { flex: 1; min-width: 0; }
+  form { display: flex; gap: 8px; }
+  #query-input {
+    flex: 1; padding: 10px 12px; font-size: 14px; border: 1px solid #d0d3da;
+    border-radius: 6px; outline: none;
+  }
+  #query-input:focus { border-color: #1f6feb; }
+  button {
+    padding: 10px 18px; font-size: 14px; border: none; border-radius: 6px;
+    background: #1f6feb; color: #fff; cursor: pointer;
+  }
+  button:hover { background: #1857c4; }
+  button.secondary { background: #f0f2f5; color: #1f2430; border: 1px solid #d0d3da; }
+  button.secondary:hover { background: #e6ebf5; }
+  button.danger { background: #dc2626; }
+  button.danger:hover { background: #b91c1c; }
+  #answer-area {
+    margin-top: 14px; background: #fff; border: 1px solid #e0e3e8;
+    border-radius: 8px; padding: 16px 18px; min-height: 200px;
+    line-height: 1.7; font-size: 14px; white-space: pre-wrap; word-break: break-word;
+  }
+  #answer-area .loading { color: #6b7280; }
+  #answer-area p, .source-body p { white-space: normal; margin: 0 0 8px; }
+  #answer-area code, .source-body code { background: #f0f2f5; padding: 1px 4px; border-radius: 3px;
+    font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+  #answer-area pre, .source-body pre { background: #0d1117; color: #ffffff; padding: 12px 14px;
+    border: 1px solid #30363d; border-radius: 6px; overflow-x: auto; margin: 10px 0;
+    font-size: 14px; line-height: 1.7; white-space: pre; }
+  #answer-area pre code, .source-body pre code { background: none; color: inherit; padding: 0; }
+  #answer-area h1, #answer-area h2, #answer-area h3, #answer-area h4,
+  .source-body h1, .source-body h2, .source-body h3, .source-body h4 {
+    margin: 14px 0 6px; color: #1f2430; line-height: 1.4; }
+  #answer-area h1, .source-body h1 { font-size: 17px; }
+  #answer-area h2, .source-body h2 { font-size: 16px; }
+  #answer-area h3, .source-body h3 { font-size: 15px; }
+  #answer-area h4, .source-body h4 { font-size: 14px; }
+  #answer-area ul, #answer-area ol, .source-body ul, .source-body ol { margin: 6px 0 10px 22px; white-space: normal; }
+  #answer-area li, .source-body li { margin: 3px 0; }
+  #answer-area table, .source-body table { border-collapse: collapse; margin: 8px 0; width: 100%; }
+  #answer-area th, #answer-area td, .source-body th, .source-body td { border: 1px solid #d0d3da; padding: 5px 9px;
+    font-size: 13px; text-align: left; }
+  #answer-area th, .source-body th { background: #f0f2f5; }
+  #answer-area blockquote, .source-body blockquote { border-left: 3px solid #d0d3da; padding-left: 10px;
+    color: #555; margin: 8px 0; white-space: normal; }
+  #answer-area code { background: #f0f2f5; padding: 1px 4px; border-radius: 3px; }
+  aside {
+    width: 380px; background: #fff; border: 1px solid #e0e3e8; border-radius: 8px;
+    padding: 14px 16px; max-height: 78vh; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  aside section h2 { font-size: 14px; color: #444; margin-bottom: 8px; }
+  aside ul { list-style: none; }
+  aside li { margin-bottom: 8px; }
+  .upload-row { display: flex; gap: 6px; }
+  .upload-row input[type="file"] {
+    flex: 1; font-size: 12px; border: 1px dashed #d0d3da; border-radius: 6px;
+    padding: 8px; color: #555;
+  }
+  .doc-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 6px;
+    background: #f0f2f5; border: 1px solid #e0e3e8; border-radius: 6px; padding: 6px 8px;
+    font-size: 13px;
+  }
+  .doc-item .doc-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .doc-item .doc-chunks { color: #6b7280; flex-shrink: 0; }
+  .doc-item .del-btn {
+    background: none; border: none; color: #dc2626; font-size: 12px; cursor: pointer;
+    padding: 2px 4px; flex-shrink: 0;
+  }
+  .doc-item .del-btn:hover { text-decoration: underline; }
+  .source-btn {
+    width: 100%; display: flex; justify-content: space-between; align-items: center;
+    background: #f0f2f5; border: 1px solid #e0e3e8; border-radius: 6px;
+    padding: 8px 10px; color: #1f2430; text-align: left; font-size: 13px;
+  }
+  .source-btn:hover { background: #e6ebf5; }
+  .src-doc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .src-idx { color: #1f6feb; font-weight: 600; margin-left: 8px; flex-shrink: 0; }
+  .source-body { display: none; margin-top: 6px; padding: 10px; background: #fafbfc;
+    border: 1px solid #e8eaef; border-radius: 6px; }
+  .source-body.open { display: block; }
+  .source-body h3 { font-size: 13px; color: #1f6feb; margin-bottom: 6px; }
+  .empty { color: #9aa4b5; font-size: 13px; }
+  .hint { font-size: 12px; color: #9aa4b5; margin-top: 4px; }
+  footer {
+    padding: 12px 24px; font-size: 12px; color: #9aa4b5; text-align: center;
+  }
+  @media (max-width: 800px) {
+    main { flex-direction: column; }
+    aside { width: 100%; max-height: none; order: 2; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>RAG 演示台</h1>
+  <p>检索增强生成全链路 · 本地私有知识库问答 · 答案可溯源</p>
+</header>
+<main>
+  <section class="ask-panel">
+    <form id="ask-form">
+      <input id="query-input" type="text" placeholder="输入问题，回车提问">
+      <button type="submit">提问</button>
+    </form>
+    <div id="answer-area">输入问题开始体验：回答下方「参考源」可点击展开，查看模型依据的原文块。</div>
+  </section>
+  <aside id="side-panel">
+    <section id="library-section">
+      <h2>知识库</h2>
+      <div class="upload-row">
+        <input id="file-input" type="file" accept=".docx,.xlsx,.pptx,.pdf,.epub,.doc,.ppt,.odt,.ods,.odp,.rtf,.csv,.txt,.md,.markdown">
+        <button id="upload-btn" class="secondary" type="button">上传入库</button>
+      </div>
+      <div class="hint">支持 docx / xlsx / pptx / pdf / epub / txt / md 等 14+ 种格式，自动转 Markdown 切块向量化</div>
+      <ul id="library-list"></ul>
+    </section>
+    <section id="sources-section">
+      <h2>参考源 · 点击展开原文块</h2>
+      <ul id="sources-list">
+        <li class="empty">提问后，这里会列出模型依据的知识块</li>
+      </ul>
+    </section>
+  </aside>
+</main>
+<footer>回答由本地 Qwen3.5或 Qwen3 文本模型（均不含视觉，此模型使用遵循Apache2.0协议） 生成 · 依据来自知识库余弦检索</footer>
+<script src="/static/vendor/markdown-it.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  // markdown-it：本地库离线渲染；html:false 不渲染原始 HTML，防 XSS。
+  // 代码块不做语法高亮——命令示例纯色高对比最稳（大道至简）。
+  var md = window.markdownit({ html: false, linkify: false });
+  function renderMarkdown(text) { return md.render(String(text)); }
+
+  var askForm = document.getElementById('ask-form');
+  var input = document.getElementById('query-input');
+  var answerArea = document.getElementById('answer-area');
+  var sourcesList = document.getElementById('sources-list');
+  var libraryList = document.getElementById('library-list');
+  var fileInput = document.getElementById('file-input');
+  var uploadBtn = document.getElementById('upload-btn');
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function renderSources(sources) {
+    sourcesList.innerHTML = '';
+    if (!sources || !sources.length) {
+      sourcesList.innerHTML = '<li class="empty">知识库暂无相关内容，先上传文档再问</li>';
+      return;
+    }
+    sources.forEach(function (s, i) {
+      var li = document.createElement('li');
+      var btn = document.createElement('button');
+      btn.className = 'source-btn';
+      btn.innerHTML = '<span class="src-doc">' + escapeHtml(s.source) + '</span>' +
+        '<span class="src-idx">[资料 ' + (i + 1) + ']</span>';
+      var body = document.createElement('div');
+      body.className = 'source-body';
+      body.innerHTML = '<h3>' + escapeHtml(s.source) + '</h3>' + renderMarkdown(s.content);
+      btn.addEventListener('click', function () {
+        var others = sourcesList.querySelectorAll('.source-body.open');
+        Array.prototype.forEach.call(others, function (el) {
+          if (el !== body) el.classList.remove('open');
+        });
+        body.classList.toggle('open');
+      });
+      li.appendChild(btn);
+      li.appendChild(body);
+      sourcesList.appendChild(li);
+    });
+  }
+
+  function loadLibrary() {
+    fetch('/library')
+      .then(function (resp) { return resp.json(); })
+      .then(function (data) {
+        libraryList.innerHTML = '';
+        if (!data.sources || !data.sources.length) {
+          libraryList.innerHTML = '<li class="empty">知识库为空，上传文档开始</li>';
+          return;
+        }
+        data.sources.forEach(function (doc) {
+          var li = document.createElement('li');
+          var div = document.createElement('div');
+          div.className = 'doc-item';
+          var del = document.createElement('button');
+          del.className = 'del-btn';
+          del.textContent = '删除';
+          del.addEventListener('click', function () {
+            if (!window.confirm('删除文档「' + doc.source + '」？')) return;
+            fetch('/library/' + encodeURIComponent(doc.source), { method: 'DELETE' })
+              .then(function (resp) {
+                if (!resp.ok) return resp.json().then(function (e) { throw new Error(e.detail || '删除失败'); });
+                loadLibrary();
+              })
+              .catch(function (err) { window.alert('删除失败：' + err.message); });
+          });
+          div.innerHTML = '<span class="doc-name">' + escapeHtml(doc.source) + '</span>' +
+            '<span class="doc-chunks">' + doc.chunks + ' 块</span>';
+          div.appendChild(del);
+          li.appendChild(div);
+          libraryList.appendChild(li);
+        });
+      })
+      .catch(function (err) {
+        libraryList.innerHTML = '<li class="empty">知识库加载失败：' + escapeHtml(err.message) + '</li>';
+      });
+  }
+
+  uploadBtn.addEventListener('click', function () {
+    var file = fileInput.files[0];
+    if (!file) { window.alert('先选择文件'); return; }
+    var fd = new FormData();
+    fd.append('file', file);
+    uploadBtn.textContent = '上传中……';
+    fetch('/library', { method: 'POST', body: fd })
+      .then(function (resp) {
+        return resp.json().then(function (data) { return { status: resp.status, data: data }; });
+      })
+      .then(function (result) {
+        if (result.status !== 200) {
+          throw new Error(result.data.detail || '上传失败');
+        }
+        window.alert('已入库：' + result.data.source + '（新增 ' + result.data.added + ' 块）');
+        fileInput.value = '';
+        loadLibrary();
+      })
+      .catch(function (err) {
+        window.alert('上传失败：' + err.message);
+      })
+      .finally(function () { uploadBtn.textContent = '上传入库'; });
+  });
+
+  askForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var query = input.value.trim();
+    if (!query) return;
+
+    answerArea.innerHTML = '<span class="loading">检索中……（本地模型生成，请稍候）</span>';
+    sourcesList.innerHTML = '<li class="empty">检索中……</li>';
+
+    fetch('/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: query })
+    })
+      .then(function (resp) {
+        return resp.json().then(function (data) { return { status: resp.status, data: data }; });
+      })
+      .then(function (result) {
+        if (result.status === 502) {
+          answerArea.innerHTML = '<p>服务不可用：' + escapeHtml(result.data.detail) + '</p>';
+          sourcesList.innerHTML = '';
+          return;
+        }
+        answerArea.innerHTML = renderMarkdown(result.data.answer);
+        renderSources(result.data.sources);
+      })
+      .catch(function (err) {
+        answerArea.innerHTML = '<p>请求失败：' + escapeHtml(err.message) + '</p>';
+      });
+  });
+
+  loadLibrary();
+})();
+</script>
+</body>
+</html>

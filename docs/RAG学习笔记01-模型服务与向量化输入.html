@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG学习笔记01-模型服务与向量化输入</title>
+<style>
+body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    line-height: 1.7;
+    color: #24292f;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 40px 60px;
+    font-size: 15px;
+}
+h1 { font-size: 1.9em; border-bottom: 2px solid #eaecef; padding-bottom: .3em; margin-top: 1.2em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid #eaecef; padding-bottom: .3em; margin-top: 1.4em; }
+h3 { font-size: 1.2em; margin-top: 1.2em; }
+h4 { font-size: 1.05em; }
+a { color: #0969da; text-decoration: none; }
+a:hover { text-decoration: underline; }
+code {
+    font-family: Consolas, "Courier New", monospace;
+    background: #f0f1f3; color: #c7254e;
+    padding: 1px 5px; border-radius: 3px; font-size: .92em;
+}
+pre {
+    background: #1e1e2e; color: #e6e6e6;
+    padding: 14px 16px; border-radius: 6px;
+    overflow-x: auto; line-height: 1.5;
+}
+pre code { background: none; color: #e6e6e6; padding: 0; font-size: .95em; }
+table {
+    border-collapse: collapse; width: 100%;
+    margin: .8em 0; font-size: .95em;
+}
+th, td { border: 1px solid #d0d7de; padding: 7px 11px; text-align: left; }
+th { background: #f2f4f6; font-weight: 600; }
+blockquote {
+    margin: .8em 0; padding: 6px 16px;
+    border-left: 4px solid #d0d7de; color: #57606a;
+    background: #f8f9fa;
+}
+hr { border: none; border-top: 1px solid #eaecef; margin: 1.6em 0; }
+ul, ol { padding-left: 1.6em; }
+li { margin: .25em 0; }
+img { max-width: 100%; }
+.footer-note {
+    margin-top: 48px; padding-top: 12px;
+    border-top: 1px solid #eaecef;
+    color: #888; font-size: 12px;
+    text-align: center;
+}
+@media print {
+    body { padding: 0 8px; max-width: 100%; }
+    pre { white-space: pre-wrap; }
+}
+</style>
+</head>
+<body>
+<h1 id="rag-01">RAG 手写全链路学习笔记 #01：模型服务启动与向量化输入</h1>
+<blockquote>
+<p>2026-10-01 · RAG_HandProj 工程 M2 前置 · 学习者视角</p>
+</blockquote>
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#1-环境事实">1. 环境事实</a></li>
+<li><a href="#2-模型服务启动">2. 模型服务启动</a></li>
+<li><a href="#21-两个服务">2.1 两个服务</a></li>
+<li><a href="#22-参数含义">2.2 参数含义</a></li>
+<li><a href="#23-启动输出解读">2.3 启动输出解读</a></li>
+<li><a href="#3-验证向量维度">3. 验证：向量维度</a></li>
+<li><a href="#4-向量化最佳输入格式">4. 向量化最佳输入格式</a></li>
+<li><a href="#41-结论">4.1 结论</a></li>
+<li><a href="#42-三层理由">4.2 三层理由</a></li>
+<li><a href="#43-管线形态">4.3 管线形态</a></li>
+<li><a href="#5-横向对比候选">5. 横向对比候选</a></li>
+<li><a href="#6-踩坑与安全">6. 踩坑与安全</a></li>
+</ul>
+<h2 id="1">1. 环境事实</h2>
+<p>本机为 NVIDIA GeForce RTX 4090 D，显存 24GB（实测空闲 21.7GB），llama.cpp 使用 CUDA 13.4 版本，位于 <code>D:\software\llama-b11159-bin-win-cuda-13.4-x64</code>。显存充足，嵌入模型与聊天模型可同时驻留。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>模型</th>
+<th>量化</th>
+<th>大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>嵌入 8B（主力）</td>
+<td>Qwen3-Embedding-8B</td>
+<td>Q5_K_M</td>
+<td>5.2 GB</td>
+</tr>
+<tr>
+<td>嵌入 4B（候选）</td>
+<td>Qwen3-Embedding-4B</td>
+<td>Q5_K_M</td>
+<td>2.8 GB</td>
+</tr>
+<tr>
+<td>聊天 4B</td>
+<td>Qwen3.5-4B</td>
+<td>Q5_K_M</td>
+<td>3.0 GB</td>
+</tr>
+<tr>
+<td>嵌入 12B（横向对比）</td>
+<td>KaLM-Embedding-Gemma3-12B</td>
+<td>i1 Q5_K_M</td>
+<td>8.1 GB</td>
+</tr>
+</tbody>
+</table>
+<p>模型文件统一位于 <code>D:\llamacpp_models</code> 目录下，按厂商与系列分子目录存放。</p>
+<h2 id="2">2. 模型服务启动</h2>
+<h3 id="21">2.1 两个服务</h3>
+<p>嵌入服务监听 8081 端口，聊天服务监听 8080 端口。二者是两条独立的 llama-server 进程，分别加载不同模型，互不干扰。</p>
+<pre><code class="language-powershell">llama-server.exe -m D:\llamacpp_models\qwen3-embed\Qwen3-Embedding-8B-Q5_K_M.gguf --embedding --pooling last -c 8192 -b 8192 -ub 8192 --host 127.0.0.1 --port 8081
+</code></pre>
+<pre><code class="language-powershell">llama-server.exe -m D:\llamacpp_models\qwen3.5\Qwen3.5-4B-Q5_K_M.gguf -c 8192 -b 8192 -ub 8192 --host 127.0.0.1 --port 8080
+</code></pre>
+<h3 id="22">2.2 参数含义</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-m</code></td>
+<td>模型文件路径</td>
+<td>烘焙的原料</td>
+</tr>
+<tr>
+<td><code>--embedding</code></td>
+<td>嵌入模式，只输出向量不做对话</td>
+<td>文字变数字的编码器</td>
+</tr>
+<tr>
+<td><code>--pooling last</code></td>
+<td>取最后一层隐藏状态做句子向量</td>
+<td>一串数字里挑最有用那个</td>
+</tr>
+<tr>
+<td><code>-c 8192</code></td>
+<td>上下文窗口（token 数）</td>
+<td>一次能记住多长输入</td>
+</tr>
+<tr>
+<td><code>-b</code> / <code>-ub</code></td>
+<td>batch / ubatch 大小</td>
+<td>一次处理多少块</td>
+</tr>
+<tr>
+<td><code>--host 127.0.0.1</code></td>
+<td>只监听本机</td>
+<td>不上公网，防偷窥</td>
+</tr>
+<tr>
+<td><code>--port</code></td>
+<td>服务端口</td>
+<td>门牌号</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23">2.3 启动输出解读</h3>
+<p>出现 <code>model loaded</code> 与 <code>listening on http://127.0.0.1:8081</code> 即表示服务就绪。聊天服务启动时的 <code>unused tensor blk.32.*</code> 警告来自 MTP（Multi-Token Prediction）模型的多余预测层，chat 模式用不到这些层，llama.cpp 自动忽略，属于正常现象，不是错误。</p>
+<h2 id="3">3. 验证：向量维度</h2>
+<p>用一段三行脚本调用嵌入服务，确认模型输出维度。Qwen3-Embedding-8B 实测返回 <strong>4096 维</strong>向量（4B 版本为 2560 维，KaLM 12B 待实测）。维度是存储层建表的关键参数——chunks 表要按维度存向量，换模型必须重建知识库。</p>
+<pre><code>POST http://127.0.0.1:8081/v1/embeddings  {&quot;model&quot;: &quot;qwen3-embed&quot;, &quot;input&quot;: &quot;你好世界&quot;}
+→ dim: 4096   head: [0.0246, -0.0055, 0.0031, ...]
+</code></pre>
+<h2 id="4">4. 向量化最佳输入格式</h2>
+<h3 id="41">4.1 结论</h3>
+<p><strong>保留标题结构的轻量 Markdown 是最佳输入格式</strong>。PDF、Word 等二进制格式对 embedding 模型不可见，模型只能看到解析后的文字流。</p>
+<h3 id="42">4.2 三层理由</h3>
+<ol>
+<li><strong>tokenizer 视角</strong>：embedding 模型按 token 读取文本，格式问题的本质是"希望模型从哪些字符里提取语义"。</li>
+<li><strong>标题是语义结构</strong>：Markdown 的标题层级是语义边界，与手写 RAG 的标题切块策略（按【】分节）完美咬合。切块是检索质量的第一道闸门，标题把这道闸门留给了 Markdown。</li>
+<li><strong>管线归一化</strong>：任何文档经 anydoc 统一转为 Markdown 后，切块与向量化只需处理一种格式，加新格式只动转换层——这是把异构入参收敛到一个入口的重构思想。</li>
+</ol>
+<h3 id="43">4.3 管线形态</h3>
+<pre><code>PDF / Word / PPT / 图片 ──▶ anydoc 归一化 ──▶ Markdown ──▶ 标题切块 ──▶ 向量化
+</code></pre>
+<p>实操细节：装饰性标记（超长链接、代码注释）会稀释向量但影响很小；真正要保留的是标题层级。500 字切块约 600 至 800 token，8B 的 8192 token 上下文绰绰有余。</p>
+<h2 id="5">5. 横向对比候选</h2>
+<p>KaLM-Embedding-Gemma3-12B 已就位（i1 量化，Q4_K_M 6.9GB / Q5_K_M 8.1GB），可作为与 Qwen3-Embedding-8B 的检索命中率对照实验。其输出维度待起服务后实测确认，横向对比的判据沿用余弦相似度 top-k 命中率，不凭感觉。</p>
+<h2 id="6">6. 踩坑与安全</h2>
+<ol>
+<li><strong>MTP 模型的 unused tensor 警告不是错误</strong>，忽略即可。</li>
+<li><strong>CORS 全开警告</strong>：本机调试无碍，但上公网前必须加 <code>--api-key</code>，否则任何能访问端口的人都能调用模型。</li>
+<li><strong><code>--pooling last</code> 必须带</strong>：Qwen3-Embedding 官方要求 last 池化，缺失会导致向量化出错；编码模型与聊天模型的启动方式不同，嵌入模式必须同时加 <code>--embedding</code> 与池化参数。</li>
+</ol>
+<div class="footer-note">RAG 手写全链路 · RAG学习笔记01-模型服务与向量化输入 · 版本 v1.0 · 生成于 2026-10-05（RAG-Minimal / RAG_HandProj 双仓库开源，AGPLv3）</div>
+</body>
+</html>

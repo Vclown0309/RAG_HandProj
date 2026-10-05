@@ -27,7 +27,17 @@ def tmp_db(tmp_path, monkeypatch):
 def test_root() -> None:
     resp = client.get('/')
     assert resp.status_code == 200
-    assert resp.json() == {'service': 'RAG 问答', 'status': 'ok'}
+    assert 'text/html' in resp.headers['content-type']
+    assert 'RAG 演示台' in resp.text
+
+
+def test_static_page_has_source_panel() -> None:
+    """演示页含知识库管理 + 参考源侧边栏 + 提问表单。"""
+    resp = client.get('/')
+    assert resp.status_code == 200
+    assert 'sources-section' in resp.text
+    assert 'library-section' in resp.text
+    assert 'ask-form' in resp.text
 
 
 def test_ask_full_pipeline(monkeypatch, tmp_db) -> None:
@@ -126,8 +136,54 @@ def test_docs_empty_file(tmp_db, monkeypatch) -> None:
     assert '内容为空' in resp.json()['detail']
 
 
-def test_docs_bad_encoding(tmp_db) -> None:
-    """非 UTF-8 文件：400。"""
-    resp = client.post('/library', files={'file': ('gbk.txt', '中文'.encode('gbk'), 'text/plain')})
+def test_docs_gbk_ok(tmp_db, monkeypatch) -> None:
+    """GBK 编码 txt：编码自适应，应入库成功（200）。"""
+    monkeypatch.setattr('main.embed', lambda chunk: [0.1])
+    resp = client.post('/library', files={'file': ('gbk.txt', '中文GBK内容'.encode('gbk'), 'text/plain')})
+    assert resp.status_code == 200, resp.text
+    assert resp.json()['added'] >= 1
+    sources = client.get('/library').json()['sources']
+    assert any(s['source'] == 'gbk.txt' for s in sources)
+
+
+def test_docs_bad_binary(tmp_db) -> None:
+    """txt 扩展名但内容是完全无法识别的二进制：400（三个编码都解不出）。"""
+    resp = client.post('/library', files={'file': ('bad.txt', bytes(range(255)), 'text/plain')})
     assert resp.status_code == 400
-    assert 'UTF-8' in resp.json()['detail']
+    assert '编码' in resp.json()['detail']
+
+
+def test_docs_malformed_pdf(tmp_db) -> None:
+    """损坏的 pdf（只有文件头）：anydoc 识别为损坏文件，400。"""
+    resp = client.post('/library', files={'file': ('a.pdf', b'%PDF-1.4', 'application/pdf')})
+    assert resp.status_code == 400
+    assert '损坏' in resp.json()['detail']
+
+
+def test_docs_unsupported_ext(tmp_db) -> None:
+    """anydoc 之外的扩展名（html）：400。"""
+    resp = client.post('/library', files={'file': ('a.html', b'<html><body>hi</body></html>', 'text/html')})
+    assert resp.status_code == 400
+    assert '暂不支持' in resp.json()['detail']
+
+
+def test_docs_docx_ok(tmp_db, monkeypatch) -> None:
+    """docx 上传：提取为 markdown 并入库（200）。"""
+    import io
+    import zipfile
+
+    xml = ('<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+           '<w:body>'
+           '<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>第一章 测试</w:t></w:r></w:p>'
+           '<w:p><w:r><w:t>这是一段正文。</w:t></w:r></w:p>'
+           '</w:body></w:document>')
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w') as zf:
+        zf.writestr('word/document.xml', xml)
+
+    monkeypatch.setattr('main.embed', lambda chunk: [0.1])
+    resp = client.post('/library', files={'file': ('a.docx', buf.getvalue(), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')})
+    assert resp.status_code == 200, resp.text
+    assert resp.json()['added'] >= 1
+    sources = client.get('/library').json()['sources']
+    assert any(s['source'] == 'a.docx' for s in sources)

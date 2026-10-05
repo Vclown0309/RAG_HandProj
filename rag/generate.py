@@ -31,9 +31,17 @@ def chat(prompt: str, url: str = DEFAULT_URL, model: str = DEFAULT_MODEL) -> str
 
 
 def build_answer_prompt(query: str, hits: list[tuple[int, float, str, str]]) -> str:
-    """把检索结果拼成 prompt：资料 + 问题，要求基于资料回答（RAG 生成）。"""
-    parts = ['根据以下资料回答问题，只依据资料，不要编造：']
+    """把检索结果拼成 prompt：资料 + 问题，要求基于资料回答（RAG 生成）。
+
+    编号用【资料N】强调；并约束引用编号与实际内容对应——
+    LLM 会被块内的目录/链接文字误导（引用幻觉），指令里明说。
+    """
+    parts = [
+        '根据以下资料回答问题，只依据资料，不要编造资料外的内容。',
+        ('回答时如需引用依据，用【资料N】标注，N 必须与实际内容所在的资料编号一致；'
+         '拿不准编号时不要标编号。资料里的目录、链接文字不算内容本身。'),
+    ]
     for i, (_rid, _score, content, _source) in enumerate(hits, 1):
-        parts.append(f'[资料{i}] {content}')
+        parts.append(f'【资料{i}】\n{content}')
     parts.append(f'问题：{query}')
     return '\n\n'.join(parts)

@@ -1,0 +1,21 @@
+INFO:     127.0.0.1:55786 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55787 - "POST /ask HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:58558 - "POST /ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52292 - "POST /library HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52304 - "POST /library HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52313 - "GET /library HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52315 - "POST /ask HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:52317 - "GET /history?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52325 - "POST /ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52328 - "POST /ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52333 - "POST /ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52336 - "GET /history?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52339 - "GET /history?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52346 - "POST /ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52349 - "GET /history?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52350 - "DELETE /library/RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001-%E6%A8%A1%E5%9E%8B%E6%9C%8D%E5%8A%A1%E4%B8%8E%E5%90%91%E9%87%8F%E5%8C%96%E8%BE%93%E5%85%A5.md HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52351 - "GET /library HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57256 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57256 - "GET /static/vendor/markdown-it.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61976 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57256 - "GET /library HTTP/1.1" 200 OK

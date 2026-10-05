@@ -66,14 +66,18 @@ def test_build_answer_prompt_assembles_sources():
     """prompt 拼装：资料块在前、问题在后、禁止编造指令在首。"""
     hits = [(1, 0.9, '资料内容A', 'a.md#0'), (2, 0.8, '资料内容B', 'b.md#1')]
     prompt = build_answer_prompt('什么是 RAG？', hits)
-    assert '[资料1] 资料内容A' in prompt
-    assert '[资料2] 资料内容B' in prompt
+    assert '【资料1】' in prompt
+    assert '资料内容A' in prompt
+    assert '【资料2】' in prompt
+    assert '资料内容B' in prompt
     assert '问题：什么是 RAG？' in prompt
     assert prompt.startswith('根据以下资料回答问题')
+    # 引用编号约束：编号必须与实际内容对应（防 LLM 被目录/链接文字误导）
+    assert 'N 必须与实际内容所在的资料编号一致' in prompt
 
 
 def test_build_answer_prompt_empty_hits():
     """空命中也拼出可用 prompt（无资料块）。"""
     prompt = build_answer_prompt('问题', [])
     assert '问题：问题' in prompt
-    assert '[资料1]' not in prompt
+    assert '【资料1】' not in prompt

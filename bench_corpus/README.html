@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>README</title>
+<style>
+body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    line-height: 1.7;
+    color: #24292f;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 40px 60px;
+    font-size: 15px;
+}
+h1 { font-size: 1.9em; border-bottom: 2px solid #eaecef; padding-bottom: .3em; margin-top: 1.2em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid #eaecef; padding-bottom: .3em; margin-top: 1.4em; }
+h3 { font-size: 1.2em; margin-top: 1.2em; }
+h4 { font-size: 1.05em; }
+a { color: #0969da; text-decoration: none; }
+a:hover { text-decoration: underline; }
+code {
+    font-family: Consolas, "Courier New", monospace;
+    background: #f0f1f3; color: #c7254e;
+    padding: 1px 5px; border-radius: 3px; font-size: .92em;
+}
+pre {
+    background: #1e1e2e; color: #e6e6e6;
+    padding: 14px 16px; border-radius: 6px;
+    overflow-x: auto; line-height: 1.5;
+}
+pre code { background: none; color: #e6e6e6; padding: 0; font-size: .95em; }
+table {
+    border-collapse: collapse; width: 100%;
+    margin: .8em 0; font-size: .95em;
+}
+th, td { border: 1px solid #d0d7de; padding: 7px 11px; text-align: left; }
+th { background: #f2f4f6; font-weight: 600; }
+blockquote {
+    margin: .8em 0; padding: 6px 16px;
+    border-left: 4px solid #d0d7de; color: #57606a;
+    background: #f8f9fa;
+}
+hr { border: none; border-top: 1px solid #eaecef; margin: 1.6em 0; }
+ul, ol { padding-left: 1.6em; }
+li { margin: .25em 0; }
+img { max-width: 100%; }
+.footer-note {
+    margin-top: 48px; padding-top: 12px;
+    border-top: 1px solid #eaecef;
+    color: #888; font-size: 12px;
+    text-align: center;
+}
+@media print {
+    body { padding: 0 8px; max-width: 100%; }
+    pre { white-space: pre-wrap; }
+}
+</style>
+</head>
+<body>
+<h1 id="bench_corpus">典例文档集 · 设计说明（bench_corpus）</h1>
+<p>用途：横向对比「文档格式 → anydoc → Markdown → 切块 → 向量化检索」的质量差异。</p>
+<h2 id="_1">设计原则：内容同源，仅格式变排版</h2>
+<p>六类文档都围绕同一套 RAG 知识点（六节），只按格式特性排版——
+word 正式排版、excel 表格化、ppt 标题要点页、epub 章节图文、md 原生、pdf 正式文档、
+pdf 扫描版（文本版的光栅化图片件）。
+这样横向对比时「内容变量」被控住，测出的差异就是格式本身的影响。</p>
+<h2 id="_2">典例清单</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01_word_rag入门.docx</td>
+<td>Word</td>
+<td>正式排版：Heading + 表格 + 代码块</td>
+</tr>
+<tr>
+<td>02_excel_rag知识点.xlsx</td>
+<td>Excel</td>
+<td>表格化：知识点速查 + 路线对比两张表</td>
+</tr>
+<tr>
+<td>03_ppt_rag入门.pptx</td>
+<td>PPT</td>
+<td>封面 + 6 内容页 + 1 流程图页</td>
+</tr>
+<tr>
+<td>04_epub_rag图文.epub</td>
+<td>EPUB</td>
+<td>3 章节 + 内嵌流程示意图</td>
+</tr>
+<tr>
+<td>05_md_rag入门.md</td>
+<td>Markdown</td>
+<td>原生基准（对照）</td>
+</tr>
+<tr>
+<td>06_pdf_rag入门.pdf</td>
+<td>PDF</td>
+<td>文本型正式文档</td>
+</tr>
+<tr>
+<td>07_pdf扫描版_rag入门.pdf</td>
+<td>PDF</td>
+<td>扫描型（图片型，06 的光栅化）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">六节知识点与判定锚句</h2>
+<table>
+<thead>
+<tr>
+<th>节</th>
+<th>锚句</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAG 是什么</td>
+<td>开卷考试</td>
+</tr>
+<tr>
+<td>为什么要先查资料</td>
+<td>一本正经地胡说</td>
+</tr>
+<tr>
+<td>切块：两种切法</td>
+<td>标题结构切</td>
+</tr>
+<tr>
+<td>向量化：文字变数字</td>
+<td>方向才表达语义</td>
+</tr>
+<tr>
+<td>检索：余弦相似度</td>
+<td>余弦相似度</td>
+</tr>
+<tr>
+<td>最佳输入格式</td>
+<td>Markdown</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">测试流程（建议）</h2>
+<ol>
+<li>anydoc 把每份典例转成 Markdown（记录转换告警/丢失项）</li>
+<li>转换结果用 chunk_markdown 切块，每类文档得到若干块</li>
+<li>六题提问（锚句即答案所在块），逐类文档测 top-3 命中率</li>
+<li>记录：块数、总字数、命中率、转换耗时 → 产出对比表</li>
+</ol>
+<h2 id="_5">预期观察点</h2>
+<ul>
+<li>excel 表格转 md 后是否保留表头/行结构，还是粘连成一坨文本</li>
+<li>ppt 要点页转 md 后标题层级是否保留</li>
+<li>epub 图文混排：图片是否丢失、章节结构是否保留</li>
+<li>pdf 表格/代码块是否被截断或粘连</li>
+<li>md 作为基准：原生结构应保持最高命中率（若否，说明 anydoc 或切块有问题）</li>
+</ul>
+<h2 id="_6">生成方式（可复现）</h2>
+<pre><code>uv run --with python-docx --with openpyxl --with python-pptx --with fpdf2 --with pillow python -m scripts.make_bench_corpus
+</code></pre>
+<p>依赖全部按需注入，不写进 pyproject（典例生成是实验工具，不是项目运行时依赖）。</p>
+<h2 id="_7">测试边界说明</h2>
+<p>横向对比与挡位推荐基于 x64 Windows 实测（CPU 版 / Vulkan 核显版 / CUDA 独显版），
+未测试 ROCm（AMD 独显 Linux）与 arm 架构 CPU。</p>
+<div class="footer-note">RAG 手写全链路 · README · 版本 v1.0 · 生成于 2026-10-05（RAG-Minimal / RAG_HandProj 双仓库开源，AGPLv3）</div>
+</body>
+</html>

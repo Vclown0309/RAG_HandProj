@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>README</title>
+<style>
+body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    line-height: 1.7;
+    color: #24292f;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 40px 60px;
+    font-size: 15px;
+}
+h1 { font-size: 1.9em; border-bottom: 2px solid #eaecef; padding-bottom: .3em; margin-top: 1.2em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid #eaecef; padding-bottom: .3em; margin-top: 1.4em; }
+h3 { font-size: 1.2em; margin-top: 1.2em; }
+h4 { font-size: 1.05em; }
+a { color: #0969da; text-decoration: none; }
+a:hover { text-decoration: underline; }
+code {
+    font-family: Consolas, "Courier New", monospace;
+    background: #f0f1f3; color: #c7254e;
+    padding: 1px 5px; border-radius: 3px; font-size: .92em;
+}
+pre {
+    background: #1e1e2e; color: #e6e6e6;
+    padding: 14px 16px; border-radius: 6px;
+    overflow-x: auto; line-height: 1.5;
+}
+pre code { background: none; color: #e6e6e6; padding: 0; font-size: .95em; }
+table {
+    border-collapse: collapse; width: 100%;
+    margin: .8em 0; font-size: .95em;
+}
+th, td { border: 1px solid #d0d7de; padding: 7px 11px; text-align: left; }
+th { background: #f2f4f6; font-weight: 600; }
+blockquote {
+    margin: .8em 0; padding: 6px 16px;
+    border-left: 4px solid #d0d7de; color: #57606a;
+    background: #f8f9fa;
+}
+hr { border: none; border-top: 1px solid #eaecef; margin: 1.6em 0; }
+ul, ol { padding-left: 1.6em; }
+li { margin: .25em 0; }
+img { max-width: 100%; }
+.footer-note {
+    margin-top: 48px; padding-top: 12px;
+    border-top: 1px solid #eaecef;
+    color: #888; font-size: 12px;
+    text-align: center;
+}
+@media print {
+    body { padding: 0 8px; max-width: 100%; }
+    pre { white-space: pre-wrap; }
+}
+</style>
+</head>
+<body>
+<h1 id="rag">RAG 手写全链路</h1>
+<blockquote>
+<p>从零手写 RAG（检索增强生成）全链路 + FastAPI 整合包：本地私有知识库问答，<strong>答案可追溯</strong>。</p>
+</blockquote>
+<p>项目用最朴素的 Python 实现 RAG 的每一环——切块、向量化、存储、余弦检索、Prompt 拼装、生成——不用任何 RAG 框架封装，代码量小、可读性强，既是求职作品，也是学习路线图。</p>
+<h2 id="_1">亮点</h2>
+<ul>
+<li><strong>手写核心链路</strong>：切块（窗口切 + 标题结构切）、向量化（本地 embedding 模型）、SQLite 存储（BLOB + 去重幂等）、手写余弦相似度 top-k、RAG prompt 拼装——每块代码都能逐行解释</li>
+<li><strong>答案可追溯</strong>：回答附参考源，演示页右侧侧边栏点击展开原文块，模型依据一验即知</li>
+<li><strong>开箱即用</strong>：启动本地模型服务后，打开演示页即可上传文档、提问、查看来源、删改知识库</li>
+<li><strong>全本地运行</strong>：模型用 GGUF 跑在 llama.cpp，数据不出机器</li>
+<li><strong>工程规范</strong>：uv 环境 + ruff 格式 + mypy 静态检查 + pytest 63 个测试全绿；git 提交遵循 Conventional Commits</li>
+</ul>
+<h2 id="_2">架构</h2>
+<pre><code>              ┌────────────────────────────────────────────────────┐
+              │                    RAG 管线（手写）                  │
+  上传文档     │                                                    │
+ ─────────►  │  归一化 ─► 切块 ─► 向量化 ─► SQLite 存储             │
+  提问        │                    │                                │
+ ─────────►  │              余弦检索 top-k ◄─────── 向量化提问      │
+              │                    │                                │
+              │           拼 Prompt（资料+问题+不编造指令）          │
+              │                    │                                │
+              │            本地模型生成 ─► 回答 + 参考源            │
+              └────────────────────────────────────────────────────┘
+    输入                  FastAPI（/ask /library /history /static）
+</code></pre>
+<h2 id="_3">快速开始</h2>
+<p>两条路，按需选择：</p>
+<h3 id="a">路径 A：纯测试模式（不需要模型、不需要显卡）</h3>
+<pre><code class="language-powershell">uv sync
+uv run pytest -q        # 63 passed
+uv run ruff check rag tests main.py scripts
+uv run mypy
+</code></pre>
+<p>测试全部用 mock，不依赖真实模型，适合快速了解代码与跑通 CI 姿势。</p>
+<h3 id="b">路径 B：完整体验（本地模型 + 演示页）</h3>
+<p>前置：Windows + uv + llama.cpp（CUDA 版），模型文件放在本地模型目录（下面命令中的 <code>D:\你的模型目录</code> 按实际路径改）。</p>
+<ol>
+<li><strong>启动嵌入模型</strong>（8081 端口，<code>--embedding --pooling last</code> 是编码模型必带参数）：</li>
+</ol>
+<pre><code class="language-powershell">llama-server.exe -m D:\你的模型目录\qwen3-embed\Qwen3-Embedding-8B-Q5_K_M.gguf --embedding --pooling last -c 8192 -b 8192 -ub 8192 --host 127.0.0.1 --port 8081
+</code></pre>
+<ol start="2">
+<li><strong>启动对话模型</strong>（8080 端口，普通聊天模型，不带 <code>--embedding</code>）：</li>
+</ol>
+<pre><code class="language-powershell">llama-server.exe -m D:\你的模型目录\qwen3.5\Qwen3.5-4B-Q5_K_M.gguf -c 8192 -b 8192 -ub 8192 --host 127.0.0.1 --port 8080
+</code></pre>
+<ol start="3">
+<li><strong>构建知识库</strong>（可选，内置示例文档 <code>docs/RAG学习笔记01-模型服务与向量化输入.md</code>）：</li>
+</ol>
+<pre><code class="language-powershell">uv run python -m scripts.build_kb &quot;docs\RAG学习笔记01-模型服务与向量化输入.md&quot; --reset
+</code></pre>
+<ol start="4">
+<li><strong>启动服务</strong>：</li>
+</ol>
+<pre><code class="language-powershell">uv run uvicorn main:app --host 127.0.0.1 --port 8000
+</code></pre>
+<ol start="5">
+<li>浏览器打开 <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> 开始体验：提问、点击参考源展开原文、上传自己的 txt/md 追加入库。</li>
+</ol>
+<p>详细步骤与常见问题见 <a href="docs/快速上手.html">docs/快速上手.md</a>。想零代码开箱即用？下载整合包（CPU / CUDA / Online 三版，链接见仓库 Release 与发布说明）。</p>
+<h2 id="_4">项目结构</h2>
+<pre><code>RAG_HandProj/
+├── main.py              # FastAPI 入口：/ask 问答、/library 知识库管理、/history、演示页
+├── rag/
+│   ├── normalize.py     # Markdown 方言归一化（callout / 脚注降级）
+│   ├── chunking.py      # 切块器：标题结构切 + 超长节窗口切 + 无标题兜底
+│   ├── embed.py         # 向量化客户端（POST /v1/embeddings）
+│   ├── store.py         # SQLite 存储：chunks（去重幂等）+ history + 余弦检索
+│   └── generate.py      # 生成客户端：RAG prompt 拼装 + 调对话模型
+├── scripts/build_kb.py  # 构建知识库 CLI
+├── static/index.html    # 离线演示页（答案 + 可点击参考源侧边栏）
+├── tests/               # 63 个测试（mock 链路 + 契约）
+├── docs/                # 源码导读、使用说明、选型报告、学习笔记
+└── CONTRIBUTING.md      # 提交规范（Conventional Commits + 分支语义）
+</code></pre>
+<h2 id="api">API 一览</h2>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /</code></td>
+<td>演示页（离线单页）</td>
+</tr>
+<tr>
+<td><code>POST /ask</code></td>
+<td>问答：<code>{"query": "..."}</code> → <code>{"answer": "...", "sources": [{source, content}]}</code></td>
+</tr>
+<tr>
+<td><code>GET /library</code></td>
+<td>知识库清单（文档 + 块数）</td>
+</tr>
+<tr>
+<td><code>POST /library</code></td>
+<td>上传 txt/md 追加入库（自动归一化 → 切块 → 向量化）</td>
+</tr>
+<tr>
+<td><code>DELETE /library/{source}</code></td>
+<td>删除文档</td>
+</tr>
+<tr>
+<td><code>GET /history</code></td>
+<td>问答历史（最新在前）</td>
+</tr>
+<tr>
+<td><code>GET /docs</code></td>
+<td>Swagger UI（接口文档）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="git-log">分支语义（git log 就是课程地图）</h2>
+<ul>
+<li><code>main</code>：里程碑主线，每次合并 = 一个可验收的知识点</li>
+<li><code>dev</code>：碎步工作区，过程细节在这里</li>
+</ul>
+<pre><code>main  M1 工具链 ─► M2 核心链路 ─► M3 /ask 全链路 ─► M4 知识库管理 ─► M5 门面文档
+</code></pre>
+<h2 id="_5">技术栈与工具</h2>
+<p>FastAPI / SQLite / requests / uv / ruff / mypy / pytest / llama.cpp（本地推理）</p>
+<h2 id="license">License</h2>
+<p><strong>AGPLv3</strong> —— 允许商用，但你必须告知使用者源码可免费获取；修改或再分发（含部署为网络服务）后，修改版同样必须以 AGPLv3 开源。模型文件与文档内容版权归各自来源。</p>
+<p>全文见 <a href="LICENSE">LICENSE</a>。</p>
+<div class="footer-note">RAG 手写全链路 · README · 版本 v1.0 · 生成于 2026-10-05（RAG-Minimal / RAG_HandProj 双仓库开源，AGPLv3）</div>
+</body>
+</html>

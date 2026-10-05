@@ -6,6 +6,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
 *.egg-info/
 
 # 数据库（kb.db 是运行产物，不入库）
