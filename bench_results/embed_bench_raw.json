@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Qwen3-Embedding-4B-Q4_K_M.gguf",
+    "pooling": "last",
+    "dim": 2560,
+    "size_gb": 2.33,
+    "hits": 10,
+    "total": 12,
+    "secs": 4.0,
+    "errors": []
+  },
+  {
+    "name": "Qwen3-Embedding-4B-Q5_K_M.gguf",
+    "pooling": "last",
+    "dim": 2560,
+    "size_gb": 2.69,
+    "hits": 10,
+    "total": 12,
+    "secs": 5.0,
+    "errors": []
+  },
+  {
+    "name": "Qwen3-Embedding-0.6B-Q8_0.gguf",
+    "pooling": "last",
+    "dim": 1024,
+    "size_gb": 0.6,
+    "hits": 9,
+    "total": 12,
+    "secs": 4.0,
+    "errors": []
+  },
+  {
+    "name": "Qwen3-Embedding-8B-Q5_K_M.gguf",
+    "pooling": "last",
+    "dim": 4096,
+    "size_gb": 5.05,
+    "hits": 9,
+    "total": 12,
+    "secs": 7.0,
+    "errors": []
+  },
+  {
+    "name": "harrier-oss-v1-0.6B-Q8_0.gguf",
+    "pooling": "last",
+    "dim": 1024,
+    "size_gb": 0.6,
+    "hits": 9,
+    "total": 12,
+    "secs": 4.0,
+    "errors": []
+  },
+  {
+    "name": "harrier-oss-v1-0.6B-BF16.gguf",
+    "pooling": "last",
+    "dim": 1024,
+    "size_gb": 1.12,
+    "hits": 9,
+    "total": 12,
+    "secs": 4.0,
+    "errors": []
+  },
+  {
+    "name": "bge-m3-q8_0.gguf",
+    "pooling": "cls",
+    "dim": 1024,
+    "size_gb": 0.59,
+    "hits": 8,
+    "total": 12,
+    "secs": 3.0,
+    "errors": []
+  },
+  {
+    "name": "KaLM-Embedding-Gemma3-12B-2511.Q5_K_M.gguf",
+    "pooling": "last",
+    "dim": 3840,
+    "size_gb": 7.87,
+    "hits": 7,
+    "total": 12,
+    "secs": 45.0,
+    "errors": []
+  },
+  {
+    "name": "KaLM-Embedding-Gemma3-12B-2511.Q4_K_M.gguf",
+    "pooling": "last",
+    "dim": 3840,
+    "size_gb": 6.8,
+    "hits": 6,
+    "total": 12,
+    "secs": 39.0,
+    "errors": []
+  }
+]

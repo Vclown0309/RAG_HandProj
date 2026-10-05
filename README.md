@@ -46,18 +46,18 @@ uv run mypy
 
 ### 路径 B：完整体验（本地模型 + 演示页）
 
-前置：Windows + uv + llama.cpp（CUDA 版），模型文件放在本地模型目录。
+前置：Windows + uv + llama.cpp（CUDA 版），模型文件放在本地模型目录（下面命令中的 `D:\你的模型目录` 按实际路径改）。
 
 1. **启动嵌入模型**（8081 端口，`--embedding --pooling last` 是编码模型必带参数）：
 
 ```powershell
-llama-server.exe -m D:\llamacpp_models\qwen3-embed\Qwen3-Embedding-8B-Q5_K_M.gguf --embedding --pooling last -c 8192 -b 8192 -ub 8192 --host 127.0.0.1 --port 8081
+llama-server.exe -m D:\你的模型目录\qwen3-embed\Qwen3-Embedding-8B-Q5_K_M.gguf --embedding --pooling last -c 8192 -b 8192 -ub 8192 --host 127.0.0.1 --port 8081
 ```
 
 2. **启动对话模型**（8080 端口，普通聊天模型，不带 `--embedding`）：
 
 ```powershell
-llama-server.exe -m D:\llamacpp_models\qwen3.5\Qwen3.5-4B-Q5_K_M.gguf -c 8192 -b 8192 -ub 8192 --host 127.0.0.1 --port 8080
+llama-server.exe -m D:\你的模型目录\qwen3.5\Qwen3.5-4B-Q5_K_M.gguf -c 8192 -b 8192 -ub 8192 --host 127.0.0.1 --port 8080
 ```
 
 3. **构建知识库**（可选，内置示例文档 `docs/RAG学习笔记01-模型服务与向量化输入.md`）：
@@ -74,7 +74,7 @@ uv run uvicorn main:app --host 127.0.0.1 --port 8000
 
 5. 浏览器打开 <http://127.0.0.1:8000> 开始体验：提问、点击参考源展开原文、上传自己的 txt/md 追加入库。
 
-详细步骤与常见问题见 [docs/使用说明.md](docs/使用说明.md)。
+详细步骤与常见问题见 [docs/快速上手.md](docs/快速上手.md)。想零代码开箱即用？下载整合包（CPU / CUDA / Online 三版，链接见仓库 Release 与发布说明）。
 
 ## 项目结构
 
@@ -90,7 +90,7 @@ RAG_HandProj/
 ├── scripts/build_kb.py  # 构建知识库 CLI
 ├── static/index.html    # 离线演示页（答案 + 可点击参考源侧边栏）
 ├── tests/               # 63 个测试（mock 链路 + 契约）
-├── docs/                # 学习笔记、使用说明、学习手册
+├── docs/                # 源码导读、使用说明、选型报告、学习笔记
 └── CONTRIBUTING.md      # 提交规范（Conventional Commits + 分支语义）
 ```
 
@@ -121,4 +121,6 @@ FastAPI / SQLite / requests / uv / ruff / mypy / pytest / llama.cpp（本地推�
 
 ## License
 
-**待定（review 时拍板）**：MIT（宽松，利于学习传播）/ GPLv3（免费商用 + 二次分发开源 + 禁止闭源倒卖，防别人打包卖钱）。模型文件与文档内容版权归各自来源。
+**AGPLv3** —— 允许商用，但你必须告知使用者源码可免费获取；修改或再分发（含部署为网络服务）后，修改版同样必须以 AGPLv3 开源。模型文件与文档内容版权归各自来源。
+
+全文见 [LICENSE](LICENSE)。

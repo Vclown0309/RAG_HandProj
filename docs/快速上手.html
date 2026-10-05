@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>快速上手</title>
+<style>
+body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    line-height: 1.7;
+    color: #24292f;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 40px 60px;
+    font-size: 15px;
+}
+h1 { font-size: 1.9em; border-bottom: 2px solid #eaecef; padding-bottom: .3em; margin-top: 1.2em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid #eaecef; padding-bottom: .3em; margin-top: 1.4em; }
+h3 { font-size: 1.2em; margin-top: 1.2em; }
+h4 { font-size: 1.05em; }
+a { color: #0969da; text-decoration: none; }
+a:hover { text-decoration: underline; }
+code {
+    font-family: Consolas, "Courier New", monospace;
+    background: #f0f1f3; color: #c7254e;
+    padding: 1px 5px; border-radius: 3px; font-size: .92em;
+}
+pre {
+    background: #1e1e2e; color: #e6e6e6;
+    padding: 14px 16px; border-radius: 6px;
+    overflow-x: auto; line-height: 1.5;
+}
+pre code { background: none; color: #e6e6e6; padding: 0; font-size: .95em; }
+table {
+    border-collapse: collapse; width: 100%;
+    margin: .8em 0; font-size: .95em;
+}
+th, td { border: 1px solid #d0d7de; padding: 7px 11px; text-align: left; }
+th { background: #f2f4f6; font-weight: 600; }
+blockquote {
+    margin: .8em 0; padding: 6px 16px;
+    border-left: 4px solid #d0d7de; color: #57606a;
+    background: #f8f9fa;
+}
+hr { border: none; border-top: 1px solid #eaecef; margin: 1.6em 0; }
+ul, ol { padding-left: 1.6em; }
+li { margin: .25em 0; }
+img { max-width: 100%; }
+.footer-note {
+    margin-top: 48px; padding-top: 12px;
+    border-top: 1px solid #eaecef;
+    color: #888; font-size: 12px;
+    text-align: center;
+}
+@media print {
+    body { padding: 0 8px; max-width: 100%; }
+    pre { white-space: pre-wrap; }
+}
+</style>
+</head>
+<body>
+<h1 id="rag">RAG 演示台・快速上手</h1>
+<p>本文面向想直接体验的人：不用懂代码，照着做就能让一个本地 AI 问答系统跑起来 ——<strong>你的文档它来答，答案还能点开看依据</strong>。</p>
+<hr />
+<h2 id="_1">一、你需要准备什么</h2>
+<table>
+<thead>
+<tr>
+<th>东西</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows 电脑</td>
+<td>有 NVIDIA 显卡体验最佳（llama.cpp CUDA 版）；无显卡也能跑，慢一些</td>
+</tr>
+<tr>
+<td>Python 3.12 + uv</td>
+<td>环境管理（不会装的看下方「常见问题」）</td>
+</tr>
+<tr>
+<td>llama.cpp</td>
+<td>模型推理程序，解压即可用</td>
+</tr>
+<tr>
+<td>模型文件（GGUF）</td>
+<td>两个：<strong>嵌入模型</strong>（负责把文字变成向量）+ <strong>对话模型</strong>（负责生成回答）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>模型文件放哪个目录都行，下面命令里的路径按你的实际情况改。</p>
+</blockquote>
+<h2 id="_2">二、启动两个模型服务（最关键的一步）</h2>
+<p>模型服务是系统的 "发动机"，要先点着。打开两个 PowerShell 窗口分别运行：</p>
+<h3 id="1-8081">服务 1：嵌入模型（端口 8081）</h3>
+<pre><code>llama-server.exe -m D:\llamacpp_models\qwen3-embed\Qwen3-Embedding-8B-Q5_K_M.gguf --embedding --pooling last -c 8192 -b 8192 -ub 8192 --host 127.0.0.1 --port 8081
+</code></pre>
+<p>看到 <code>listening on http://127.0.0.1:8081</code> 即启动成功。</p>
+<p>两个参数不能省：</p>
+<ul>
+<li>
+<p><code>--embedding</code>：让模型以 "编码模式" 运行（输出向量而不是聊天）</p>
+</li>
+<li>
+<p><code>--pooling last</code>：取最后一层隐藏状态作为整句话的向量（Qwen 嵌入模型的官方要求）</p>
+</li>
+</ul>
+<h3 id="2-8080">服务 2：对话模型（端口 8080）</h3>
+<pre><code>llama-server.exe -m D:\llamacpp_models\qwen3.5\Qwen3.5-4B-Q5_K_M.gguf -c 8192 -b 8192 -ub 8192 --host 127.0.0.1 --port 8080
+</code></pre>
+<p>注意：<strong>对话模型不带</strong> <code>--embedding</code> 参数。</p>
+<h2 id="_3">三、启动演示台</h2>
+<p>在项目目录（<code>RAG_HandProj</code>）打开 PowerShell：</p>
+<pre><code>uv sync
+uv run uvicorn main:app --host 127.0.0.1 --port 8000
+</code></pre>
+<p>浏览器打开 <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a>，看到「RAG 演示台」页面即成功。</p>
+<h2 id="_4">四、开箱体验</h2>
+<ol>
+<li>
+<p><strong>先装知识库</strong>：演示台右侧「知识库」区点「选择文件」→「上传入库」，支持 txt/md/markdown + doc/docx/xlsx/pptx/pdf/epub/rtf 等 15+ 种常见格式（anydoc 统一转 Markdown 入库；内置示例文档无需手动操作）；已入库的文档可点「删除」移除</p>
+</li>
+<li>
+<p><strong>提问</strong>：输入问题回车，模型会基于知识库回答</p>
+</li>
+<li>
+<p><strong>看依据</strong>：答案下方「参考源」列表点开，能看到模型依据的原文块 —— 每个知识点都能追到出处</p>
+</li>
+<li>
+<p><strong>管理知识库</strong>：演示页可直接上传 / 删除；需要批量或自动化时用接口 <code>POST /library</code>、<code>DELETE /library/{文档名}</code>（Swagger 或命令行）</p>
+</li>
+</ol>
+<h2 id="_5">五、常见问题</h2>
+<p><strong>Q：提问报「服务不可用 /connection refused」</strong></p>
+<p>A：两个模型服务没起来或端口不对。检查 8080/8081 窗口是否还在运行，<code>Test-NetConnection 127.0.0.1 -Port 8081</code> 看是否通。</p>
+<p><strong>Q：换了嵌入模型后，检索结果不对</strong></p>
+<p>A：不同模型输出的向量维度不同（8B=4096，4B=2560），换模型后必须重建知识库：</p>
+<pre><code>uv run python -m scripts.build_kb &quot;docs\RAG学习笔记01-模型服务与向量化输入.md&quot; --reset
+</code></pre>
+<p><strong>Q：上传文件报 400</strong></p>
+<p>A：分两种情况：① 文件本身有问题——扫描型 PDF（纯图片页）暂不支持、文件损坏/加密、内容为空；② 文件没问题但格式不支持——常见格式基本都支持（txt/md/markdown + doc/docx/xlsx/pptx/pdf/epub/rtf 等 15+ 种，anydoc 统一转 Markdown 入库），纯文本还会自动识别 UTF-8 / GBK / UTF-16 编码。报 400 时看错误提示，按提示处理即可。</p>
+<p><strong>Q：没有显卡能跑吗</strong></p>
+<p>A：能。llama.cpp 有 CPU 版，速度慢但可用；对话模型建议 4B 量化版。</p>
+<p><strong>Q：llama.cpp 升级后，启动命令不对了怎么办</strong></p>
+<p>A：llama.cpp 不同版本的启动参数可能有变化，<strong>以你下载的那个版本为准</strong>。旧命令失效时，把旧命令（作用：加载模型、开嵌入模式/池化、设端口）发给 AI，让它按你的新版本生成新命令；<strong>对不对以能不能跑起来为准</strong>——命令行出现 <code>listening on http://...</code> 即成功。</p>
+<h2 id="_6">六、给开发者</h2>
+<ul>
+<li>
+<p>跑测试（不需要模型）：<code>uv run pytest -q</code></p>
+</li>
+<li>
+<p>接口文档：服务启动后打开 <a href="http://127.0.0.1:8000/docs">http://127.0.0.1:8000/docs</a>（Swagger UI）</p>
+</li>
+<li>
+<p>源码导览：见 <a href="源码导读.html">源码导读.md</a>（进阶读代码）；想先学原理看 <a href="https://github.com/Vclown0309/RAG-Minimal">RAG-Minimal</a>（156 行单文件教材）</p>
+</li>
+</ul>
+<div class="footer-note">RAG 手写全链路 · 快速上手 · 版本 v1.0 · 生成于 2026-10-05（RAG-Minimal / RAG_HandProj 双仓库开源，AGPLv3）</div>
+</body>
+</html>
