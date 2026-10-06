@@ -16,15 +16,11 @@
 
 全部结论基于本机实测（Windows 11 / i9-14900K / 64GB / RTX 4090 D 24GB，llama.cpp b11337；未测 ROCm 与 arm CPU），完整表格见 [docs/模型选型报告.md](docs/模型选型报告.md)。
 
-**嵌入模型纯检索对比**（库内 12 题，锚句在余弦 top-3 内即命中；只换嵌入模型）：
+**17 组实测全景（综合命中排名，每行上为嵌入模型、下为聊天模型）：**
 
-![嵌入模型纯检索对比](assets/fig_embed_hit.svg)
+![RAG 模型选型 17 组实测全景](assets/fig_overall.svg)
 
-**聊天模型端到端对比**（固定 4B-Q4 嵌入 × 5 聊天，可追溯命中 + 平均耗时）：
-
-![聊天模型端到端对比](assets/fig_chat_reco.svg)
-
-一句话结论：**嵌入选 Qwen3-Embedding-4B-Q4_K_M（唯一 12/12）**，聊天按硬件选 **4B-Q4（CPU，1.6s/题）或 9B-Q5（独显，3.4s/题）**；27B 与 KaLM-12B 无质量优势且慢/大，已淘汰。
+一句话结论：**嵌入选 Qwen3-Embedding-4B-Q4_K_M（唯一综合 12/12 档）**，聊天按硬件选 **Qwen3-4B-Q4_K_M（CPU，1.6s/题）或 Qwen3.5-9B-Q5_K_M（独显，3.4s/题）**；Qwen3.8-27B 与 KaLM-Embedding-Gemma3-12B 无质量优势且慢/大，已淘汰。
 
 ## 架构
 
