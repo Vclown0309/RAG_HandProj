@@ -74,7 +74,22 @@ uv run uvicorn main:app --host 127.0.0.1 --port 8000
 
 5. 浏览器打开 <http://127.0.0.1:8000> 开始体验：提问、点击参考源展开原文、上传自己的 txt/md 追加入库。
 
-详细步骤与常见问题见 [docs/快速上手.md](docs/快速上手.md)。想零代码开箱即用？下载整合包（CPU / CUDA / Online 三版，链接见仓库 Release 与发布说明）。
+详细步骤与常见问题见 [docs/快速上手.md](docs/快速上手.md)。想零代码开箱即用？下载整合包（CPU / CUDA / Online 三版），见下方 [整合包下载与使用教程](#整合包下载与使用教程)。
+
+## 整合包下载与使用教程
+
+不想折腾环境？下载整合包，解压双击 `start.bat` 即用（模型内置 / 在线版自动下载）：
+
+- **百度网盘**（永久有效，无需提取码）：https://pan.baidu.com/s/59PrnR8lAbw0h0AbsHok08w
+- **视频教程（B 站）**：[RAG_HandProj 整合包使用教程](https://www.bilibili.com/video/BV1kXHf6tE3i/)
+
+| 版本 | 大小 | 说明 | 适用 |
+| --- | --- | --- | --- |
+| RAG_HandProj_CPU_v1.0.zip | 4.59 GB | 模型直打，纯 CPU 运行 | 无独立显卡 / 老电脑 |
+| RAG_HandProj_CUDA_v1.0.zip | 9.53 GB | 模型直打，CUDA 12/13 双后端自动选 | NVIDIA 独显 |
+| RAG_HandProj_Online_v0.1.0.zip | 1.23 GB | 缺模型自动下载（断点续传），启动可选 CPU / 核显 / 独显档位 | 网速好、想省流量 |
+
+下载后运行网盘内的 **`校验压缩包完整性.bat`**（依赖同目录 `SHA256SUMS.txt`）校验三个压缩包是否完整、未被篡改。
 
 ## 项目结构
 

@@ -2,6 +2,8 @@
 
 坑（旧项目踩过）：Qwen3.5 的思考过程在 reasoning_content 里，
 取答案只认 choices[0].message.content，别被思考过程带偏。
+
+llama-server -m <对话模型> -c 8192 --port 8080
 """
 
 import requests

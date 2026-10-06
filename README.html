@@ -120,8 +120,45 @@ uv run mypy
 <ol start="5">
 <li>浏览器打开 <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> 开始体验：提问、点击参考源展开原文、上传自己的 txt/md 追加入库。</li>
 </ol>
-<p>详细步骤与常见问题见 <a href="docs/快速上手.html">docs/快速上手.md</a>。想零代码开箱即用？下载整合包（CPU / CUDA / Online 三版，链接见仓库 Release 与发布说明）。</p>
-<h2 id="_4">项目结构</h2>
+<p>详细步骤与常见问题见 <a href="docs/快速上手.html">docs/快速上手.md</a>。想零代码开箱即用？下载整合包（CPU / CUDA / Online 三版），见下方 <a href="#整合包下载与使用教程">整合包下载与使用教程</a>。</p>
+<h2 id="_4">整合包下载与使用教程</h2>
+<p>不想折腾环境？下载整合包，解压双击 <code>start.bat</code> 即用（模型内置 / 在线版自动下载）：</p>
+<ul>
+<li><strong>百度网盘</strong>（永久有效，无需提取码）：https://pan.baidu.com/s/59PrnR8lAbw0h0AbsHok08w</li>
+<li><strong>视频教程（B 站）</strong>：<a href="https://www.bilibili.com/video/BV1kXHf6tE3i/">RAG_HandProj 整合包使用教程</a></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>大小</th>
+<th>说明</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAG_HandProj_CPU_v1.0.zip</td>
+<td>4.59 GB</td>
+<td>模型直打，纯 CPU 运行</td>
+<td>无独立显卡 / 老电脑</td>
+</tr>
+<tr>
+<td>RAG_HandProj_CUDA_v1.0.zip</td>
+<td>9.53 GB</td>
+<td>模型直打，CUDA 12/13 双后端自动选</td>
+<td>NVIDIA 独显</td>
+</tr>
+<tr>
+<td>RAG_HandProj_Online_v0.1.0.zip</td>
+<td>1.23 GB</td>
+<td>缺模型自动下载（断点续传），启动可选 CPU / 核显 / 独显档位</td>
+<td>网速好、想省流量</td>
+</tr>
+</tbody>
+</table>
+<p>下载后运行网盘内的 <strong><code>校验压缩包完整性.bat</code></strong>（依赖同目录 <code>SHA256SUMS.txt</code>）校验三个压缩包是否完整、未被篡改。</p>
+<h2 id="_5">项目结构</h2>
 <pre><code>RAG_HandProj/
 ├── main.py              # FastAPI 入口：/ask 问答、/library 知识库管理、/history、演示页
 ├── rag/
@@ -182,11 +219,11 @@ uv run mypy
 </ul>
 <pre><code>main  M1 工具链 ─► M2 核心链路 ─► M3 /ask 全链路 ─► M4 知识库管理 ─► M5 门面文档
 </code></pre>
-<h2 id="_5">技术栈与工具</h2>
+<h2 id="_6">技术栈与工具</h2>
 <p>FastAPI / SQLite / requests / uv / ruff / mypy / pytest / llama.cpp（本地推理）</p>
 <h2 id="license">License</h2>
 <p><strong>AGPLv3</strong> —— 允许商用，但你必须告知使用者源码可免费获取；修改或再分发（含部署为网络服务）后，修改版同样必须以 AGPLv3 开源。模型文件与文档内容版权归各自来源。</p>
 <p>全文见 <a href="LICENSE">LICENSE</a>。</p>
-<div class="footer-note">RAG 手写全链路 · README · 版本 v1.0 · 生成于 2026-10-05（RAG-Minimal / RAG_HandProj 双仓库开源，AGPLv3）</div>
+<div class="footer-note">RAG 手写全链路 · README · 版本 v1.0 · 生成于 2026-10-06（RAG-Minimal / RAG_HandProj 双仓库开源，AGPLv3）</div>
 </body>
 </html>
