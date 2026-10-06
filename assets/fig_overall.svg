@@ -162,7 +162,7 @@
   <rect x="210" y="838" width="13" height="13" rx="2" fill="#57a55c"/>
   <text x="230" y="849" font-size="11" fill="#666">良好 11/12（92%）</text>
   <rect x="400" y="838" width="13" height="13" rx="2" fill="#e6a23c"/>
-  <text x="420" y="849" font-size="11" fill="#666">10/12（83%）</text>
+  <text x="420" y="849" font-size="11" fill="#666">一般 10/12（83%）</text>
   <rect x="560" y="838" width="13" height="13" rx="2" fill="#d4706f"/>
-  <text x="580" y="849" font-size="11" fill="#666">垫底 9/12（75%，KaLM-12B）</text>
+  <text x="580" y="849" font-size="11" fill="#666">垫底 9/12（75%）</text>
 </svg>
