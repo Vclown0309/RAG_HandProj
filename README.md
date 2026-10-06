@@ -91,6 +91,7 @@ uv run uvicorn main:app --host 127.0.0.1 --port 8000
 不想折腾环境？下载整合包，解压双击 `start.bat` 即用（模型内置 / 在线版自动下载）：
 
 - **百度网盘**（永久有效，无需提取码）：https://pan.baidu.com/s/59PrnR8lAbw0h0AbsHok08w
+- **GitHub Release（Online 版）**：[github.com/Vclown0309/RAG_HandProj/releases](https://github.com/Vclown0309/RAG_HandProj/releases)（免网盘直接下载，离线版超单文件限额走网盘）
 - **视频教程（B 站）**：[RAG_HandProj 整合包使用教程](https://www.bilibili.com/video/BV1kXHf6tE3i/)
 
 | 版本 | 大小 | 说明 | 适用 |
