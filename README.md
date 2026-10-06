@@ -12,6 +12,20 @@
 - **全本地运行**：模型用 GGUF 跑在 llama.cpp，数据不出机器
 - **工程规范**：uv 环境 + ruff 格式 + mypy 静态检查 + pytest 63 个测试全绿；git 提交遵循 Conventional Commits
 
+## 实测数据（9 嵌入 × 5 聊天，17 组控制变量）
+
+全部结论基于本机实测（Windows 11 / i9-14900K / 64GB / RTX 4090 D 24GB，llama.cpp b11337；未测 ROCm 与 arm CPU），完整表格见 [docs/模型选型报告.md](docs/模型选型报告.md)。
+
+**嵌入模型纯检索对比**（库内 12 题，锚句在余弦 top-3 内即命中；只换嵌入模型）：
+
+![嵌入模型纯检索对比](assets/fig_embed_hit.svg)
+
+**聊天模型端到端对比**（固定 4B-Q4 嵌入 × 5 聊天，可追溯命中 + 平均耗时）：
+
+![聊天模型端到端对比](assets/fig_chat_reco.svg)
+
+一句话结论：**嵌入选 Qwen3-Embedding-4B-Q4_K_M（唯一 12/12）**，聊天按硬件选 **4B-Q4（CPU，1.6s/题）或 9B-Q5（独显，3.4s/题）**；27B 与 KaLM-12B 无质量优势且慢/大，已淘汰。
+
 ## 架构
 
 ```
@@ -85,8 +99,8 @@ uv run uvicorn main:app --host 127.0.0.1 --port 8000
 
 | 版本 | 大小 | 说明 | 适用 |
 | --- | --- | --- | --- |
-| RAG_HandProj_CPU_v1.0.zip | 4.59 GB | 模型直打，纯 CPU 运行 | 无独立显卡 / 老电脑 |
-| RAG_HandProj_CUDA_v1.0.zip | 9.53 GB | 模型直打，CUDA 12/13 双后端自动选 | NVIDIA 独显 |
+| RAG_HandProj_CPU_v0.1.0.zip | 4.59 GB | 模型直打，纯 CPU 运行 | 无独立显卡 / 老电脑 |
+| RAG_HandProj_CUDA_v0.1.0.zip | 9.53 GB | 模型直打，CUDA 12/13 双后端自动选 | NVIDIA 独显 |
 | RAG_HandProj_Online_v0.1.0.zip | 1.23 GB | 缺模型自动下载（断点续传），启动可选 CPU / 核显 / 独显档位 | 网速好、想省流量 |
 
 下载后运行网盘内的 **`校验压缩包完整性.bat`**（依赖同目录 `SHA256SUMS.txt`）校验三个压缩包是否完整、未被篡改。

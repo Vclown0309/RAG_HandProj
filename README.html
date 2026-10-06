@@ -72,6 +72,13 @@ img { max-width: 100%; }
 <li><strong>全本地运行</strong>：模型用 GGUF 跑在 llama.cpp，数据不出机器</li>
 <li><strong>工程规范</strong>：uv 环境 + ruff 格式 + mypy 静态检查 + pytest 63 个测试全绿；git 提交遵循 Conventional Commits</li>
 </ul>
+<h2 id="9-5-17">实测数据（9 嵌入 × 5 聊天，17 组控制变量）</h2>
+<p>全部结论基于本机实测（Windows 11 / i9-14900K / 64GB / RTX 4090 D 24GB，llama.cpp b11337；未测 ROCm 与 arm CPU），完整表格见 <a href="docs/模型选型报告.html">docs/模型选型报告.md</a>。</p>
+<p><strong>嵌入模型纯检索对比</strong>（库内 12 题，锚句在余弦 top-3 内即命中；只换嵌入模型）：</p>
+<p><img alt="嵌入模型纯检索对比" src="assets/fig_embed_hit.svg" /></p>
+<p><strong>聊天模型端到端对比</strong>（固定 4B-Q4 嵌入 × 5 聊天，可追溯命中 + 平均耗时）：</p>
+<p><img alt="聊天模型端到端对比" src="assets/fig_chat_reco.svg" /></p>
+<p>一句话结论：<strong>嵌入选 Qwen3-Embedding-4B-Q4_K_M（唯一 12/12）</strong>，聊天按硬件选 <strong>4B-Q4（CPU，1.6s/题）或 9B-Q5（独显，3.4s/题）</strong>；27B 与 KaLM-12B 无质量优势且慢/大，已淘汰。</p>
 <h2 id="_2">架构</h2>
 <pre><code>              ┌────────────────────────────────────────────────────┐
               │                    RAG 管线（手写）                  │
@@ -138,13 +145,13 @@ uv run mypy
 </thead>
 <tbody>
 <tr>
-<td>RAG_HandProj_CPU_v1.0.zip</td>
+<td>RAG_HandProj_CPU_v0.1.0.zip</td>
 <td>4.59 GB</td>
 <td>模型直打，纯 CPU 运行</td>
 <td>无独立显卡 / 老电脑</td>
 </tr>
 <tr>
-<td>RAG_HandProj_CUDA_v1.0.zip</td>
+<td>RAG_HandProj_CUDA_v0.1.0.zip</td>
 <td>9.53 GB</td>
 <td>模型直打，CUDA 12/13 双后端自动选</td>
 <td>NVIDIA 独显</td>
